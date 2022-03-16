@@ -123,7 +123,7 @@ const UpdateActionStatus = (req, res, next) => {
     }
 }
 
-const GetActionByEmail = (req, res, next) {
+const GetActionByEmail = (req, res, next) => {
 
     const email = req.body.email;
     const token = req.body.token;
@@ -240,6 +240,213 @@ const GetDisposition = (req, res, next) => {
 
 }
 
+
+const GetResponseType = (req, res, next) => {
+    // connect to your database
+
+    sql.connect(config, function (err) {
+        if (err) console.log(err);
+        // create Request object
+        request = new sql.Request();
+
+        // query to the database and get the records
+
+        request.query('select * from dbo.Response_Type', function (err, result) {
+
+            if (err) console.log(err)
+
+            // send records as a response
+
+            if (result.recordset.length > 0) {
+                return res.json({ success: true, message: "record fetched successfully.", result: result.recordset });
+            }
+            else {
+                return res.status(400).json({ isAuth: false, message: "unable to fetch record" });
+            }
+        });
+    });
+
+}
+
+
+const GetActionStatus = (req, res, next) => {
+    // connect to your database
+
+    sql.connect(config, function (err) {
+        if (err) console.log(err);
+        // create Request object
+        request = new sql.Request();
+
+        // query to the database and get the records
+
+        request.query('select * from dbo.Action_Status', function (err, result) {
+
+            if (err) console.log(err)
+
+            // send records as a response
+
+            if (result.recordset.length > 0) {
+                return res.json({ success: true, message: "record fetched successfully.", result: result.recordset });
+            }
+            else {
+                return res.status(400).json({ isAuth: false, message: "unable to fetch record" });
+            }
+        });
+    });
+
+}
+
+const GetRole = (req, res, next) => {
+    // connect to your database
+    sql.connect(config, function (err) {
+        if (err) console.log(err);
+        // create Request object
+        request = new sql.Request();
+
+        // query to the database and get the records
+
+        request.query('select * from dbo.User_Type', function (err, result) {
+
+            if (err) console.log(err)
+
+            // send records as a response
+
+            if (result.recordset.length > 0) {
+                console.log(result.recordset);
+                return res.json({ success: true, message: "record fetched successfully.", result: result.recordset });
+            }
+            else {
+                return res.status(400).json({ isAuth: false, message: "unable to fetch record" });
+            }
+        });
+    });
+
+}
+
+
+const GenerateCallLogAndCoordinate = (req, res, next) => {
+
+    // var Date = req.body.Date;
+    // const salesOrders = await drivermonitoringservice.GetDriverTripRecords(Date);
+    // //console.log('salesorders',salesOrders)
+    // const callLogdata = await drivermonitoringservice.GetDriverCallLogRecords(Date);
+    // //console.log('call logs',callLogdata)
+    // var result = drivermonitoringservice.CompareTripDataWithLogData(salesOrders, callLogdata, Date);
+    // if (result) {
+    //     return res.json({ success: true, message: "log generated successfully.", result: result.recordset });
+    // }
+    // else {
+    //     return res.status(400).json({ success: false, message: "unable to generate record" });
+    // }
+
+
+}
+
+
+
+const GetCallLocationLogs = (req, res, next) => {
+    var Date = req.body.SearchDate;
+
+    sql.connect(config, function (err) {
+        if (err) console.log(err);
+        request = new sql.Request();
+
+        request
+            .input('Date', sql.NVarChar, Date)
+            .query('select solog.[Id],solog.[SalesOrderNumber],CONVERT(nvarchar(50),solog.[Date]) as Date,solog.[NumberOfCallMade],solog.[IsCustomerPhoneInLog]' +
+                ',solog.[CustomerAddressLatitude],solog.[CustomerAddressLongitude],solog.[DifferenceInCoordinates]' +
+                ',solog.[DifferenceInLastCallAndSkipTimes], ea.[Exception Type] as ExceptionType, ea.Note ' +
+                'from dbo.SalesOrder_Logs_Details as solog inner join dbo.DriverMonitoringExceptionActivityData ea ' +
+                'on solog.[SalesOrderNumber] = ea.[Order #] WHERE solog.Date = @Date', function (err, result) {
+
+                    if (err) console.log(err)
+                    // console.log(result);
+                    if (result.recordset.length > 0) {
+                        return res.json({ success: true, message: "record fetched successfully.", result: result.recordset });
+                    }
+                    else {
+                        return res.status(400).json({ success: false, message: "unable to fetch record", result: [] });
+                    }
+                });
+    });
+
+}
+
+
+const GetTripRoutes = (req, res, next) => {
+    var date = req.body.tripdate;
+    var tripnumber = req.body.tripnumber;
+    var tripactivityroute = [];
+    var tripassignedroute = [];
+    var querymessage = '';
+    
+    sql.connect(config, function (err) {
+        if (err) console.log(err);
+        request = new sql.Request();
+        let query = "SELECT [Event Time] as EventTime, [Latitude], [Longitude], [Order #] as OrderNumber FROM [dbo].[DriverMonitoringTripEventActivityData]" +
+            "WHERE [Trip #] = @TripNumber and Type='Arrive at Stop'"
+        // request.input('Date', sql.NVarChar, date);
+        request.input('TripNumber', sql.NVarChar, tripnumber);
+        request.query(query, function (err, result) {
+
+            if (err) console.log(err);
+
+            if (result.recordset.length > 0) {
+                tripactivityroute = result.recordset;
+            }
+            else {
+                querymessage = "Error in Trip event activity data fetch";
+            }
+
+            tripactivityroute.forEach(async element => {
+                element["EventTime"] = dateformatehelper.extractTimeFromDate(element.EventTime);
+                
+            });
+           
+            let query = "SELECT CAST(Arrival as time) as Arrival, Address FROM [dbo].[DriverMonitoringTripItineraryData]" +
+                "WHERE [Trip #] = @TripNumber";
+
+            request.query(query, async (err, result) => {
+                let addressProcessed = 0;
+                if (err) console.log(err);
+
+                if (result.recordset.length > 0) {
+                    tripassignedroute = result.recordset;
+
+                    if (querymessage === "") {
+                        querymessage = "records fetched successfully";
+                    }
+                    tripassignedroute.forEach(async (item, index, array) => {
+                        coordinates = await googlemapservice.calculateCustomerAddressGeoCoordinates(item.Address);
+                      
+                        item['SerialNumber'] = index;
+                        item['Latitude'] = coordinates.Latitude;
+                        item['Longitude'] = coordinates.Longitude;                       
+                        addressProcessed++;
+                        if (addressProcessed === (array.length - 1)) {                           
+                            return res.json({ success: true, message: querymessage, tripcoordinates: tripassignedroute, activitycoordinates: tripactivityroute });
+                        }
+                    });
+
+                }
+                else {
+                    querymessage = "Error in fetching Sales order log data";
+                    return res.status(400).json({ success: false, message: querymessage });
+                }
+            });
+        });
+    });
+
+}
+
+const iframe = (req, res, next) => {
+    var src = 'https://app.powerbi.com/view?r=eyJrIjoiMGVmMzc0ZDItNzdiYS00NDdmLThhZjktZTY2ZmQ3NzgxOTY5IiwidCI6IjdkODViMzVjLTg3MmUtNDA1NS1hZjkyLTgwZmI3YzlmOTRiNCIsImMiOjF9';
+    var title = 'Driver Monitoring Live - Trip Analysis';
+    var allowfullscreen = "true"
+    return res.send({ message: "Drivers status", src: src, title: title, isFullScreen: allowfullscreen });
+}
+
+
 module.exports = {
     CreateAction,
     CreateActionNotes,
@@ -249,6 +456,14 @@ module.exports = {
     GetActionNoteByEmail,
     GetActionCountByStatus,
     GetStakeholders,
-    GetDisposition
+    GetDisposition,
+    GetResponseType,
+    GetActionStatus,
+    GetRole,
+    GenerateCallLogAndCoordinate,
+    GetCallLocationLogs,
+    GetTripRoutes,
+    iframe
+
 };
 

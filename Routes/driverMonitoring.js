@@ -25,6 +25,20 @@ router.post('/GetStakeholders', authorize(Role.Admin), driverMonitoringControlle
 router.get('/GetDisposition', authorize(Role.Admin), driverMonitoringController.GetDisposition);
 
 
-router.get('/GetResponseType', driverMonitoringController.GetResponseType);
+router.get('/GetResponseType', authorize(Role.Admin), driverMonitoringController.GetResponseType);
+
+router.get('/GetActionStatus', authorize(Role.Admin), driverMonitoringController.GetActionStatus);
+
+
+router.get('/GetRole', authorize(Role.Admin), driverMonitoringController.GetRole);
+
+router.post('/GetCallLocationLogs', authorize(Role.Admin), driverMonitoringController.GetCallLocationLogs);
+
+router.post('/GetTripRoutes', authorize(Role.Admin), driverMonitoringController.GetTripRoutes);
+
+
+router.post("/iframe", driverMonitoringController.iframe);
+
+
 
 module.exports = router;

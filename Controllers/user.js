@@ -15,7 +15,7 @@ const getAll = (req, res, next) => {
         .catch(err => next(err));
 }
 
-function getById(req, res, next) {
+const getById = (req, res, next) => {
     const currentUser = req.user;
     const id = parseInt(req.params.id);
 
@@ -29,6 +29,16 @@ function getById(req, res, next) {
         .catch(err => next(err));
 }
 
+const logout = (req, res) => {
+    // clear the cookie
+    res.clearCookie("auth");
+    res.clearCookie("email");
+    // redirect to login
+    return res.send("logout successfully");
+};
+
+
 module.exports = {authenticate,
     getAll,
-    getById};
+    getById,
+logout};
