@@ -6,6 +6,10 @@ var sql = require("mssql");
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const config = require('../config/config');
+const smsservice = require('../Services/sms-service');
+const drivermonitoringservice = require('../Services/driver-monitoring-service');
+const googlemapservice = require('../Services/geocoding-service');
+
 
 
 const CreateAction =  (req, res, next) => {
@@ -35,7 +39,7 @@ const CreateAction =  (req, res, next) => {
                 if (result.recordset.length > 0) {
                     phonenumber = result.recordset[0].Phone;
                 }
-               // smsservice.sendSMS('Driver monitoring system: action has been created with note: "' + note + '"', phonenumber);
+                //smsservice.sendSMS('Driver monitoring system: action has been created with note: "' + note + '"', phonenumber);
             });
 
             console.log(result) // count of recordsets returned by the procedure           
@@ -324,20 +328,20 @@ const GetRole = (req, res, next) => {
 }
 
 
-const GenerateCallLogAndCoordinate = (req, res, next) => {
+const GenerateCallLogAndCoordinate = async (req, res, next) => {
 
-    // var Date = req.body.Date;
-    // const salesOrders = await drivermonitoringservice.GetDriverTripRecords(Date);
-    // //console.log('salesorders',salesOrders)
-    // const callLogdata = await drivermonitoringservice.GetDriverCallLogRecords(Date);
-    // //console.log('call logs',callLogdata)
-    // var result = drivermonitoringservice.CompareTripDataWithLogData(salesOrders, callLogdata, Date);
-    // if (result) {
-    //     return res.json({ success: true, message: "log generated successfully.", result: result.recordset });
-    // }
-    // else {
-    //     return res.status(400).json({ success: false, message: "unable to generate record" });
-    // }
+    var Date = req.body.Date;
+    const salesOrders = await drivermonitoringservice.GetDriverTripRecords(Date);
+    //console.log('salesorders',salesOrders)
+    const callLogdata = await drivermonitoringservice.GetDriverCallLogRecords(Date);
+    //console.log('call logs',callLogdata)
+    var result = drivermonitoringservice.CompareTripDataWithLogData(salesOrders, callLogdata, Date);
+    if (result) {
+        return res.json({ success: true, message: "log generated successfully.", result: result.recordset });
+    }
+    else {
+        return res.status(400).json({ success: false, message: "unable to generate record" });
+    }
 
 
 }
