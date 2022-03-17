@@ -8,6 +8,7 @@ const cookieParser = require('cookie-parser');
 const config = require('./config/config');
 const driverMonitoringRoute = require('./Routes/driverMonitoring');
 const userRoute = require('./Routes/user');
+const wipsamRoute = require('./Routes/wipsam');
 
 require("dotenv").config();
 
@@ -37,6 +38,7 @@ app.get('/', cors(), function (req, res) {
 
 app.use("/user", userRoute);
 app.use("/drivermonitoring", driverMonitoringRoute);
+app.use("/wipsam", wipsamRoute);
 
 
 var port = process.env.PORT || 3001;

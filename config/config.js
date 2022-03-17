@@ -1,8 +1,8 @@
 var config = {
-    user: 'zuetestdbadmin',
-    password: 'zuetestdb@2022',
-    server: 'zuetestdbsrv.database.windows.net',
-    database: 'ZueTestDB',
+    user: 'cpcgradmin',
+    password: 'cpcgrdb@2022',
+    server: 'cpcgr.database.windows.net',
+    database: 'NHMSDB',
     options: {
         trustedConnection: true,
         trustServerCertificate: true
