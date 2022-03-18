@@ -52,5 +52,5 @@ jobs:
         with:
           app-name: 'cpcgr'
           slot-name: 'UAT'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_B6C1895358254B7DB1A9E71558AFF9C8 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_C47D9A6579D24F8E8CFD9869F40B9D5A }}
           package: .
