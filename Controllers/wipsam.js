@@ -9,10 +9,11 @@ const config = require('../config/config');
 
 
 const getWipsam =  (req, res, next) => {
+    var modelId = req.body.ModuleId;
 
     sql.connect(config, function (err) {
         request = new sql.Request();
-        let query = "SELECT * FROM [dbo].[Module_File_Type] Where [ModuleId] = 2";
+        let query = "SELECT * FROM [dbo].[Module_File_Type] Where [ModuleId] ="+modelId;
         console.log(query);
         let data1;
         request.query(query, async (err, result) => {
