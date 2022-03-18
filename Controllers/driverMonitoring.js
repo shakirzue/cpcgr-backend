@@ -46,7 +46,7 @@ const CreateAction =  (req, res, next) => {
             console.log(result.output) // key/value collection of output values
 
             return res.json({ success: true, message: "action created successfully and notification sent to stakeholder.", result: 'Action created with id:' + result.output });
-        }).catch(err => next(err));
+        });
     });
 }
 
