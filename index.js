@@ -38,8 +38,11 @@ app.use(cookieParser());
 app.use(fileUpload());
 
 app.get('/', cors(), function (req, res) {
+    console.log("Welcome to Zue Driver monitoring");
     res.send("Welcome to Zue Driver monitoring");
 });
+
+console.log("Welcome to Zue Driver monitoring");
 
 
 app.use("/user", userRoute);
