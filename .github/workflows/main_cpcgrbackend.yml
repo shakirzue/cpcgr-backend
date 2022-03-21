@@ -52,5 +52,5 @@ jobs:
         with:
           app-name: 'CPCGRBACKEND'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_DAD6F3130A4743FA9A104CAE02FB02DD }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_205B310E913445769EFE054DE8C105B5 }}
           package: .
