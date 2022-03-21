@@ -1,5 +1,5 @@
 {
-  "name": "CPCGR PORTAL ",
+  "name":"server",
   "version": "1.0.0",
   "description": "Collaborate Patient Care Group",
   "main": "index.js",
