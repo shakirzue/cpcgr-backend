@@ -27,17 +27,13 @@ app.use(bodyParser.raw({ type: 'application/vnd.custom-type' }));
 // parse an HTML body into a string
 app.use(bodyParser.text({ type: 'text/html' }));
 
-app.use(cors({
-    origin: process.env.CLIENT_URL,
-    optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
-    methods: ['GET', 'POST', 'DELETE', 'UPDATE', 'PUT', 'PATCH']
-}));
+app.use(cors());
 
 app.use(cookieParser());
 
 app.use(fileUpload());
 
-app.get('/', cors(), function (req, res) {
+app.get('/', function (req, res) {
     console.log("Welcome to Zue Driver monitoring");
     res.send("Welcome to Zue Driver monitoring");
 });
