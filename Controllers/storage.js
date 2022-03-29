@@ -10,6 +10,7 @@ const fileUploader = require('../Services/file-uploader-service');
 
 
 const blobupload = (req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');  
     fileUploader.blobUpload(req, res);
     res.json({ success: "true", message: "File Successfully Uploaded" });      
 }
@@ -56,7 +57,6 @@ const getFileTypesByModule = (req, res, next) => {
 }
 
 const getFileTypeDetailByFileTypeId = (req, res, next) => {
-    
     sql.connect(config, function (err) {
         if (err) console.log(err);
         // create Request object

@@ -72,7 +72,10 @@ function blobUpload(request, response) {
 
 const uploadFileToServer = async (file) => {
     const blobName = file.name;
-    const filePath = path.join(__dirname, "/" + process.env.TEMPORARY_FILE_UPLOAD_FOLDER_NAME + "/", blobName);
+    console.log(__dirname);
+    //const filePath = path.join(__dirname, "/" + process.env.TEMPORARY_FILE_UPLOAD_FOLDER_NAME + "/", blobName);
+    const filePath = path.join(path.dirname(__dirname), "/" , blobName);
+    console.log(filePath);
     file.mv(filePath, (err) => {
         if (err) {
             console.log('Error in uploading file on server: ' + err);
@@ -87,7 +90,8 @@ const uploadFileToServer = async (file) => {
 
 const uploadFileToBlob = async (file) => {
     const blobName = file.name;
-    const filePath = path.join(__dirname, "/" + process.env.TEMPORARY_FILE_UPLOAD_FOLDER_NAME + "/", blobName);
+    //const filePath = path.join(__dirname, "/" + process.env.TEMPORARY_FILE_UPLOAD_FOLDER_NAME + "/", blobName);
+    const filePath = path.join(path.dirname(__dirname),  "/", blobName);
     const stream = fs.createReadStream(filePath);
 
     blobService.createBlockBlobFromStream(
