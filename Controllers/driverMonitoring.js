@@ -12,8 +12,8 @@ const googlemapservice = require('../Services/geocoding-service');
 
 
 
-const CreateAction =  (req, res, next) => {
-    
+const CreateAction = (req, res, next) => {
+
     const disposition_id = req.body.disposition_type_id;
     const response_type_id = req.body.response_type_id;
     const assignee = req.body.assignee;
@@ -34,7 +34,7 @@ const CreateAction =  (req, res, next) => {
             // ... error checks
             var phonenumber = '';
             request.query('Select Phone from [dbo].[adminprofile] WHERE Id = @assignee_profile_id;', (err, result) => {
-                if (err) console.log(err);                
+                if (err) console.log(err);
                 if (result.recordset.length > 0) {
                     phonenumber = result.recordset[0].Phone;
                 }
@@ -208,11 +208,14 @@ const GetStakeholders = (req, res, next) => {
         request.input('email', sql.NVarChar, email)
         request.input('token', sql.NVarChar, token)
         request.execute('usp_get_stakeholders', (err, result) => {
-            return res.json({ success: true, message: "record found", result: result.recordset });;
+            if (result.recordset.length > 0)
+                return res.json({ success: true, message: "record found", result: result.recordset });
+            else
+                return res.status(401).json({ message: 'stakeholder record not found' });
         })
     });
 
-    
+
 
 }
 
@@ -382,7 +385,7 @@ const GetTripRoutes = (req, res, next) => {
     var tripactivityroute = [];
     var tripassignedroute = [];
     var querymessage = '';
-    
+
     sql.connect(config, function (err) {
         if (err) console.log(err);
         request = new sql.Request();
@@ -403,9 +406,9 @@ const GetTripRoutes = (req, res, next) => {
 
             tripactivityroute.forEach(async element => {
                 element["EventTime"] = dateformatehelper.extractTimeFromDate(element.EventTime);
-                
+
             });
-           
+
             let query = "SELECT CAST(Arrival as time) as Arrival, Address FROM [dbo].[DriverMonitoringTripItineraryData]" +
                 "WHERE [Trip #] = @TripNumber";
 
@@ -421,12 +424,12 @@ const GetTripRoutes = (req, res, next) => {
                     }
                     tripassignedroute.forEach(async (item, index, array) => {
                         coordinates = await googlemapservice.calculateCustomerAddressGeoCoordinates(item.Address);
-                      
+
                         item['SerialNumber'] = index;
                         item['Latitude'] = coordinates.Latitude;
-                        item['Longitude'] = coordinates.Longitude;                       
+                        item['Longitude'] = coordinates.Longitude;
                         addressProcessed++;
-                        if (addressProcessed === (array.length - 1)) {                           
+                        if (addressProcessed === (array.length - 1)) {
                             return res.json({ success: true, message: querymessage, tripcoordinates: tripassignedroute, activitycoordinates: tripactivityroute });
                         }
                     });

@@ -25,7 +25,8 @@ const getModules = (req, res, next) => {
         request.query('select Id,ModuleName from dbo.File_Module WHERE isVisible = @isVisible', function (err, result) {
 
             if (err) console.log(err)          
-            // send records as a response           
+            // send records as a response   
+            console.log(result);        
             if (result.recordset.length > 0) {
                 return res.status(200).json({ success: true, message: "records successfully.", modules: result.recordset });
             }
