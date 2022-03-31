@@ -5,13 +5,13 @@ const authorize = require('../helpers/authorize')
 const Role = require('../helpers/role');
 
 
-router.post("/blobupload",  authorize(Role.Admin), storageController.blobupload);
+router.post("/blobupload",  authorize, storageController.blobupload);
 
-router.get("/getModules", authorize(Role.Admin), storageController.getModules);
+router.get("/getModules", authorize, storageController.getModules);
 
-router.post("/getFileTypesByModule", authorize(Role.Admin), storageController.getFileTypesByModule);
+router.post("/getFileTypesByModule", authorize, storageController.getFileTypesByModule);
 
-router.post("/getFileTypeDetailByFileTypeId", authorize(Role.Admin), storageController.getFileTypeDetailByFileTypeId);
+router.post("/getFileTypeDetailByFileTypeId", authorize, storageController.getFileTypeDetailByFileTypeId);
 
 
 module.exports = router;

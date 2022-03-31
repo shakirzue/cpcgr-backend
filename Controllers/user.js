@@ -1,5 +1,4 @@
 const userService = require('../Services/user');
-const authorize = require('../helpers/authorize')
 const Role = require('../helpers/role');
 
 const authenticate = (req, res, next) => {

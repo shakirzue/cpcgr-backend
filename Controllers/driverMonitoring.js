@@ -34,8 +34,7 @@ const CreateAction =  (req, res, next) => {
             // ... error checks
             var phonenumber = '';
             request.query('Select Phone from [dbo].[adminprofile] WHERE Id = @assignee_profile_id;', (err, result) => {
-                if (err) console.log(err);
-                console.log(result.recordset);
+                if (err) console.log(err);                
                 if (result.recordset.length > 0) {
                     phonenumber = result.recordset[0].Phone;
                 }

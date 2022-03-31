@@ -5,6 +5,6 @@ const authorize = require('../helpers/authorize')
 const Role = require('../helpers/role');
 
 
-router.post('/getPowerBIReport',  authorize(Role.Admin),  wipsamController.getWipsam);
+router.post('/getPowerBIReport',  authorize,  wipsamController.getWipsam);
 
 module.exports = router;
