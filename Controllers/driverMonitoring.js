@@ -18,8 +18,7 @@ const CreateAction = (req, res, next) => {
     const response_type_id = req.body.response_type_id;
     const assignee = req.body.assignee;
     const note = req.body.note;
-    const email = req.body.email;
-    const token = req.body.token;
+    const oid = req.body.objectId;
 
     sql.connect(config, function (err) {
         request = new sql.Request();
@@ -27,13 +26,11 @@ const CreateAction = (req, res, next) => {
         request.input('response_type_id', sql.Int, response_type_id)
         request.input('assignee_profile_id', sql.Int, assignee)
         request.input('note', sql.NVarChar, note)
-        request.input('email', sql.NVarChar, email)
-        request.input('token', sql.NVarChar, token)
+        request.input('objectId', sql.UniqueIdentifier, oid)
         request.output('new_action_notification_id', sql.Int)
         request.execute('usp_create_action_notification', (err, result) => {
-            // ... error checks
             var phonenumber = '';
-            request.query('Select Phone from [dbo].[adminprofile] WHERE Id = @assignee_profile_id;', (err, result) => {
+            request.query('Select Phone from [dbo].[User_Profile] WHERE Id = @assignee_profile_id;', (err, result) => {
                 if (err) console.log(err);
                 if (result.recordset.length > 0) {
                     phonenumber = result.recordset[0].Phone;
@@ -52,15 +49,14 @@ const CreateAction = (req, res, next) => {
 const CreateActionNotes = (req, res, next) => {
     const action_id = req.body.action_id;
     const note = req.body.note;
-    const email = req.body.email;
-    const token = req.body.token;
+    const oid = req.body.objectId;
 
     sql.connect(config, function (err) {
         request = new sql.Request();
         request.input('action_id', sql.Int, action_id)
         request.input('notes', sql.NVarChar, note)
-        request.input('email', sql.NVarChar, email)
-        request.input('token', sql.NVarChar, token)
+        request.input('objectId', sql.UniqueIdentifier, oid)
+
         request.output('new_action_notification_id', sql.Int)
         request.execute('usp_create_action_notification_notes', (err, result) => {
             // ... error checks
@@ -125,30 +121,30 @@ const UpdateActionStatus = (req, res, next) => {
 
 const GetActionByEmail = (req, res, next) => {
 
-    const email = req.body.email;
-    const token = req.body.token;
+    const oid = req.body.objectId;
     var isassignee;
     if (typeof req.body.isassignee === 'undefined' || req.body.isassignee === null) {
         isassignee = false;
     }
     else {
         isassignee = req.body.isassignee;
-    }
+    }    
     sql.connect(config, function (err) {
         request = new sql.Request();
-        request.input('email', sql.NVarChar, email)
-        request.input('token', sql.NVarChar, token)
+        request.input('objectId', sql.UniqueIdentifier, oid)
         request.input('userisassignee', sql.Bit, isassignee)
-        request.execute('usp_get_action_notification_by_email', (err, result) => {
-            return res.json({ success: true, message: "record found", actions: result.recordset, owner_action_note: result.recordsets[1], assignee_action_note: result.recordsets[2] });
+        request.execute('usp_get_action_notification_by_objectId', (err, result) => {
+            if (typeof result !== 'undefined' && result.recordset.length > 0)
+                return res.json({ success: true, message: "record found", actions: result.recordset, owner_action_note: result.recordsets[1], assignee_action_note: result.recordsets[2] });
+            else
+                return res.status(401).json({ success: false, message: "record not found" })
         })
     });
 }
 
 const GetActionNoteByEmail = (req, res, next) => {
 
-    const email = req.body.email;
-    const token = req.body.token;
+    const oid = req.body.objectId;
     var isassignee;
     if (typeof req.body.isassignee === 'undefined' || req.body.isassignee === null) {
         isassignee = false;
@@ -158,10 +154,9 @@ const GetActionNoteByEmail = (req, res, next) => {
     }
     sql.connect(config, function (err) {
         request = new sql.Request();
-        request.input('email', sql.NVarChar, email)
-        request.input('token', sql.NVarChar, token)
+        request.input('objectId', sql.UniqueIdentifier, oid)
         request.input('userisassignee', sql.Bit, isassignee)
-        request.execute('usp_get_action_notification_by_email', (err, result) => {
+        request.execute('usp_get_action_notification_by_objectId', (err, result) => {
             return res.json({ success: true, message: "record found", actions: result.recordset });;
         })
     });
@@ -169,8 +164,7 @@ const GetActionNoteByEmail = (req, res, next) => {
 
 const GetActionCountByStatus = (req, res, next) => {
 
-    const email = req.body.email;
-    const token = req.body.token;
+    const oid = req.body.objectId;
     var isassignee;
     if (typeof req.body.isassignee === 'undefined' || req.body.isassignee === null) {
         isassignee = false;
@@ -180,8 +174,7 @@ const GetActionCountByStatus = (req, res, next) => {
     }
     sql.connect(config, function (err) {
         request = new sql.Request();
-        request.input('email', sql.NVarChar, email)
-        request.input('token', sql.NVarChar, token)
+        request.input('objectId', sql.UniqueIdentifier, oid)
         request.input('userisassignee', sql.Bit, isassignee)
         request.execute('usp_get_action_notification_count_by_status', (err, result) => {
             return res.json({ success: true, message: "record found", result: result.recordset });;
@@ -190,13 +183,11 @@ const GetActionCountByStatus = (req, res, next) => {
 }
 
 const GetStakeholders = (req, res, next) => {
-    const email = req.body.email;
-    const token = req.body.token;
-
+    const oid = req.body.objectId;
+console.log(oid)
     sql.connect(config, function (err) {
         request = new sql.Request();
-        request.input('email', sql.NVarChar, email)
-        request.input('token', sql.NVarChar, token)
+        request.input('objectId', sql.UniqueIdentifier, oid)
         request.execute('usp_get_stakeholders', (err, result) => {
             if (result.recordset.length > 0)
                 return res.json({ success: true, message: "record found", result: result.recordset });
@@ -254,7 +245,6 @@ const GetResponseType = (req, res, next) => {
             // send records as a response
 
             if (result.recordset.length > 0) {
-                console.log(result.recordset);
                 return res.json({ success: true, message: "record fetched successfully.", result: result.recordset });
             }
             else {
