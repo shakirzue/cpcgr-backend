@@ -184,7 +184,6 @@ const GetActionCountByStatus = (req, res, next) => {
 
 const GetStakeholders = (req, res, next) => {
     const oid = req.body.objectId;
-console.log(oid)
     sql.connect(config, function (err) {
         request = new sql.Request();
         request.input('objectId', sql.UniqueIdentifier, oid)

@@ -28,18 +28,24 @@ const getAllRoles = (req, res, next) => {
         .catch(err => next(err));
 }
 
-const logout = (req, res) => {
-    // clear the cookie
-    res.clearCookie("auth");
-    res.clearCookie("email");
-    // redirect to login
-    return res.send("logout successfully");
-};
+const getUserPermissionByObjectId = (req, res, next) => {
 
+    userService.getPermissionDetailsByUserId(req.body.objectId)
+        .then(user => user ? res.json(user) : res.sendStatus(404))
+        .catch(err => next(err));
+}
+
+const getUserPermission = (req, res, next) => {
+
+    userService.SaveUserPermission({req.body.objectId, req.body.assigneeProfileId, req.body.permissionLevelId, req.body.microServiceId})
+        .then(user => user ? res.json(user) : res.sendStatus(404))
+        .catch(err => next(err));
+}
 
 module.exports = {
     authenticate,
     getAll,
-    getById,
-    logout, getAllRoles
+    getById,   
+    getAllRoles,
+    getUserPermissionByObjectId
 };
