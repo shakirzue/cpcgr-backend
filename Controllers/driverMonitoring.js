@@ -50,7 +50,6 @@ const CreateAction = (req, res, next) => {
 }
 
 const CreateActionNotes = (req, res, next) => {
-    console.log(req.body);
     const action_id = req.body.action_id;
     const note = req.body.note;
     const email = req.body.email;
@@ -75,7 +74,6 @@ const CreateActionNotes = (req, res, next) => {
 
 
 const UpdateActionResponseType = (req, res, next) => {
-    console.log(req);
     if (typeof req.body.action_id !== 'undefined' && typeof req.body.action_id !== 'undefined') {
         // connect to your database
 
@@ -101,7 +99,6 @@ const UpdateActionResponseType = (req, res, next) => {
 }
 
 const UpdateActionStatus = (req, res, next) => {
-    console.log(req.body);
     if (typeof req.body.action_id !== 'undefined' && typeof req.body.action_id !== 'undefined') {
         // connect to your database
 
@@ -137,16 +134,13 @@ const GetActionByEmail = (req, res, next) => {
     else {
         isassignee = req.body.isassignee;
     }
-    console.log(isassignee);
     sql.connect(config, function (err) {
         request = new sql.Request();
         request.input('email', sql.NVarChar, email)
         request.input('token', sql.NVarChar, token)
         request.input('userisassignee', sql.Bit, isassignee)
         request.execute('usp_get_action_notification_by_email', (err, result) => {
-            console.log(result.recordsets[1]);
-            console.log(result.recordsets[2]);
-            return res.json({ success: true, message: "record found", actions: result.recordset, owner_action_note: result.recordsets[1], assignee_action_note: result.recordsets[2] });;
+            return res.json({ success: true, message: "record found", actions: result.recordset, owner_action_note: result.recordsets[1], assignee_action_note: result.recordsets[2] });
         })
     });
 }
@@ -162,14 +156,12 @@ const GetActionNoteByEmail = (req, res, next) => {
     else {
         isassignee = req.body.isassignee;
     }
-    console.log(isassignee);
     sql.connect(config, function (err) {
         request = new sql.Request();
         request.input('email', sql.NVarChar, email)
         request.input('token', sql.NVarChar, token)
         request.input('userisassignee', sql.Bit, isassignee)
         request.execute('usp_get_action_notification_by_email', (err, result) => {
-            console.log(result);
             return res.json({ success: true, message: "record found", actions: result.recordset });;
         })
     });
@@ -186,14 +178,12 @@ const GetActionCountByStatus = (req, res, next) => {
     else {
         isassignee = req.body.isassignee;
     }
-    console.log(isassignee);
     sql.connect(config, function (err) {
         request = new sql.Request();
         request.input('email', sql.NVarChar, email)
         request.input('token', sql.NVarChar, token)
         request.input('userisassignee', sql.Bit, isassignee)
         request.execute('usp_get_action_notification_count_by_status', (err, result) => {
-            console.log(result);
             return res.json({ success: true, message: "record found", result: result.recordset });;
         })
     });
@@ -264,6 +254,7 @@ const GetResponseType = (req, res, next) => {
             // send records as a response
 
             if (result.recordset.length > 0) {
+                console.log(result.recordset);
                 return res.json({ success: true, message: "record fetched successfully.", result: result.recordset });
             }
             else {
@@ -318,7 +309,6 @@ const GetRole = (req, res, next) => {
             // send records as a response
 
             if (result.recordset.length > 0) {
-                console.log(result.recordset);
                 return res.json({ success: true, message: "record fetched successfully.", result: result.recordset });
             }
             else {
@@ -334,9 +324,7 @@ const GenerateCallLogAndCoordinate = async (req, res, next) => {
 
     var Date = req.body.Date;
     const salesOrders = await drivermonitoringservice.GetDriverTripRecords(Date);
-    //console.log('salesorders',salesOrders)
     const callLogdata = await drivermonitoringservice.GetDriverCallLogRecords(Date);
-    //console.log('call logs',callLogdata)
     var result = drivermonitoringservice.CompareTripDataWithLogData(salesOrders, callLogdata, Date);
     if (result) {
         return res.json({ success: true, message: "log generated successfully.", result: result.recordset });
@@ -344,8 +332,6 @@ const GenerateCallLogAndCoordinate = async (req, res, next) => {
     else {
         return res.status(400).json({ success: false, message: "unable to generate record" });
     }
-
-
 }
 
 
@@ -366,7 +352,6 @@ const GetCallLocationLogs = (req, res, next) => {
                 'on solog.[SalesOrderNumber] = ea.[Order #] WHERE solog.Date = @Date', function (err, result) {
 
                     if (err) console.log(err)
-                    // console.log(result);
                     if (result.recordset.length > 0) {
                         return res.json({ success: true, message: "record fetched successfully.", result: result.recordset });
                     }
