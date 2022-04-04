@@ -28,16 +28,15 @@ const getAllRoles = (req, res, next) => {
         .catch(err => next(err));
 }
 
-const getUserPermissionByObjectId = (req, res, next) => {
-
+const getUserPermissionByObjectId = (req, res, next) => {    
     userService.getPermissionDetailsByUserId(req.body.objectId)
         .then(user => user ? res.json(user) : res.sendStatus(404))
         .catch(err => next(err));
 }
 
-const getUserPermission = (req, res, next) => {
+const saveUserPermission = (req, res, next) => {
 
-    userService.SaveUserPermission({req.body.objectId, req.body.assigneeProfileId, req.body.permissionLevelId, req.body.microServiceId})
+    userService.SaveUserPermission(req.body.objectId, req.body.assigneeProfileId, req.body.permissionLevelId, req.body.microServiceId)
         .then(user => user ? res.json(user) : res.sendStatus(404))
         .catch(err => next(err));
 }
@@ -47,5 +46,6 @@ module.exports = {
     getAll,
     getById,   
     getAllRoles,
-    getUserPermissionByObjectId
+    getUserPermissionByObjectId,
+    saveUserPermission
 };

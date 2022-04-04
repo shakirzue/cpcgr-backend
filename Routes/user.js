@@ -9,7 +9,7 @@ router.post('/authenticate', userController.authenticate);     // public route
 router.get('/', authorize, userController.getAll); // admin only
 router.get('/:id', authorize, userController.getById);       // all authenticated users
 router.get('/getAllRoles', authorize, userController.getAllRoles); 
-router.get('/getUserPermissionByObjectId', authorize, userController.getUserPermissionByObjectId); 
-
+router.post('/getUserPermissionByObjectId', authorize, userController.getUserPermissionByObjectId); 
+router.post('/saveUserPermission', authorize, userController.getUserPermissionByObjectId); 
 module.exports = router;
 

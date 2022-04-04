@@ -1,4 +1,4 @@
-const config = require('../config.json');
+const config = require('../config/config');
 const jwt = require('jsonwebtoken');
 const Role = require('../helpers/role');
 var sql = require("mssql");
@@ -153,50 +153,45 @@ async function getAllMicroServiceDefinitions() {
 }
 
 async function getPermissionDetailsByUserId(objectId) {
-    // connect to your database
+    return new Promise(function (resolve, reject) {
+        sql.connect(config)
+            .then((conn) => {
+                const request = conn.request();
+                let query = "SELECT [user].Id, [user].[Name], [user].RoleId, up.MicroServiceId, up.PermissionLeveId, " +
+                    "ut.User_Type as [Role] , msd.[Description] as ModuleDiscription, pl.[Description] as PermissionDescription  from dbo.User_Permission up inner join " +
+                    "dbo.User_Profile [user] on up.UserProfileId = [user].Id inner join " +
+                    "dbo.Micro_Service_Definition msd on up.MicroServiceId = msd.Module_Id inner join " +
+                    "dbo.Permission_Level pl on up.PermissionLeveId = pl.Id inner join " +
+                    "dbo.User_Type ut on [user].RoleId = ut.Id where [user].objectId = @objectId"
 
-    sql.connect(config, function (err) {
-        if (err) console.log(err);
-        // create Request object
-        request = new sql.Request();
-        request.input('objectId', sql.UniqueIdentifier, objectId);
+                let result = request
+                    .input('objectId', sql.UniqueIdentifier, objectId)
+                    .query(query)
+                    .then((result) => {
 
-        let query = "SELECT [user].Id, [user].[Name], [user].RoleId, up.MicroServiceId, up.PermissionLeveId, " +
-            "ut.User_Type as [Role] ,msd.[Description], pl.[Description]  from dbo.User_Permission up inner join" +
-            "dbo.User_Profile [user] on up.UserProfileId = [user].Id inner join" +
-            "dbo.Micro_Service_Definition msd on up.MicroServiceId = msd.Module_Id inner join" +
-            "dbo.Permission_Level pl on up.PermissionLeveId = pl.Id inner join" +
-            "dbo.User_Type ut on [user].RoleId = ut.Id where [user].objectId = @objectId"
-
-        request.query(query, function (err, result) {
-
-            if (err) console.log(err)
-
-            // send records as a response
-
-            if (result.recordset.length > 0) {
-                return res.json({ success: true, message: "record fetched successfully.", result: result.recordset });
-            }
-            else {
-                return res.status(400).json({ isAuth: false, message: "unable to fetch record" });
-            }
-        });
+                        if (result.recordset.length > 0) {
+                            resolve(({ success: true, message: "record fetched successfully.", result: result.recordset }));
+                        }
+                        else {
+                            resolve(({ success: false, message: "unable to fetch record" }));
+                        }
+                    })
+                    .then(() => conn.close())
+            })
     });
-
-
 }
 
 async function SaveUserPermission(permissionObject) {
     sql.connect(config)
         .then((conn) => {
             const request = conn.request();
-         
+
             let result = request
                 .input('assignee_profile_id', sql.Int, permissionObject.assigneeProfileId)
                 .input('permission_level_id', sql.Int, permissionObject.permissionLevelId)
                 .input('objectId', sql.UniqueIdentifier, permissionObject.objectId)
-                .input('micro_service_id', sql.Int, permissionObject.microServiceId)   
-                .output('new_id', sql.Int)            
+                .input('micro_service_id', sql.Int, permissionObject.microServiceId)
+                .output('new_id', sql.Int)
                 .execute("usp_assign_user_permission")
                 .then((result) => {
                     console.log(result) // count of recordsets returned by the procedure           
