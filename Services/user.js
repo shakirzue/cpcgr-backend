@@ -186,6 +186,7 @@ async function SaveUserPermission(permissionObject) {
                 .input('permission_level_id', sql.Int, permissionObject.permissionLevelId)
                 .input('objectId', sql.UniqueIdentifier, permissionObject.objectId)
                 .input('micro_service_id', sql.Int, permissionObject.microServiceId)
+                .input('client_id', sql.Int, permissionObject.clientId)
                 .output('new_id', sql.Int)
                 .execute("usp_assign_user_permission")
                 .then((result) => {
