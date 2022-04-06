@@ -17,7 +17,13 @@ module.exports = {
     getPermissionDetailsByUserId,
     getAllPermissionLevel,
     getAllMicroServiceDefinitions,
-    SaveUserPermission
+    getAllClient,
+    SaveUserPermission,
+    CreateClient,
+    CreateUserProfile,
+    getDefaultUserClient,
+    getUserClients,
+    getClientById
 };
 
 async function authenticate({ username, password }) {
@@ -33,16 +39,15 @@ async function authenticate({ username, password }) {
     }
 }
 
-async function getAll(tenantId) {
+async function getAllUserRoles() {
     return new Promise(function (resolve, reject) {
         sql.connect(config)
             .then((conn) => {
                 const request = conn.request();
-                let query = "SELECT * FROM [dbo].[User_Profile] WHERE [TenantId] = @tenantId"
                 let result = request
-                    .input('tenantId', sql.UniqueIdentifier, tenantId)
-                    .query(query)
+                    .query('select * from dbo.User_Type')
                     .then((result) => {
+
                         if (result.recordset.length > 0) {
                             resolve(({ success: true, message: "record fetched successfully.", result: result.recordset }));
                         }
@@ -55,43 +60,13 @@ async function getAll(tenantId) {
     });
 }
 
-async function getById(objectId) {
-    if (typeof objectId !== 'undefined') {
-
-        sql.connect(config, function (err) {
-            if (err) console.log(err);
-            // create Request object
-            request = new sql.Request();
-
-            request.query('select * from [dbo].[User_Profile] where objectId = @objectId', (err, result) => {
-                if (err) console.log(err);
-                if (typeof result !== "undefined" && result.recordset.length > 0) {
-                    return ({ success: true, message: "record found", result: result.recordset });
-                }
-                else {
-                    return ({ success: false, message: "record not found" });
-                }
-            });
-
-
-        });
-    }
-    else {
-        return res.status(400).json({ isAuth: false, message: "Credential(s) have not been provided" });
-    }
-    // const user = users.find(u => u.id === parseInt(id));
-    // if (!user) return;
-    // const { password, ...userWithoutPassword } = user;
-    // return userWithoutPassword;
-}
-
-async function getAllUserRoles() {
+async function getAllClient() {
     return new Promise(function (resolve, reject) {
         sql.connect(config)
             .then((conn) => {
                 const request = conn.request();
                 let result = request
-                    .query('select * from dbo.User_Type')
+                    .query('select * from dbo.Client_Details')
                     .then((result) => {
 
                         if (result.recordset.length > 0) {
@@ -148,19 +123,146 @@ async function getAllMicroServiceDefinitions() {
     });
 }
 
-async function getPermissionDetailsByUserId(objectId) {
+async function getAll(tenantId) {
+    return new Promise(function (resolve, reject) {
+        sql.connect(config)
+            .then((conn) => {
+                const request = conn.request();
+                let query = "SELECT * FROM [dbo].[User_Profile] WHERE [TenantId] = @tenantId"
+                let result = request
+                    .input('tenantId', sql.UniqueIdentifier, tenantId)
+                    .query(query)
+                    .then((result) => {
+                        if (result.recordset.length > 0) {
+                            resolve(({ success: true, message: "record fetched successfully.", result: result.recordset }));
+                        }
+                        else {
+                            resolve(({ success: false, message: "unable to fetch record" }));
+                        }
+                    })
+                    .then(() => conn.close())
+            })
+    });
+}
+
+async function getById(objectId) {
+
+    return new Promise(function (resolve, reject) {
+        sql.connect(config)
+            .then((conn) => {
+                const request = conn.request();
+                let query = "select * from [dbo].[User_Profile] where objectId = @objectId"
+                let result = request
+                    .input('objectId', sql.UniqueIdentifier, objectId)
+                    .query(query)
+                    .then((result) => {
+                        if (err) console.log(err);
+                        if (typeof result !== "undefined" && result.recordset.length > 0) {
+                            resolve({ success: true, message: "record found", result: result.recordset });
+                        }
+                        else {
+                            resolve({ success: false, message: "record not found" });
+                        }
+                    })
+                    .then(() => conn.close())
+            })
+    });
+}
+
+async function getDefaultUserClient(objectId) {
+
+    return new Promise(function (resolve, reject) {
+        sql.connect(config)
+            .then((conn) => {
+                const request = conn.request();
+                let query = "SELECT Top 1 cd.* from dbo.Client_Details cd inner join "+
+                "dbo.Client_User_Link cul on cd.ClientId = cul.ClientId inner join "+
+                "dbo.User_Profile up on cul.UserProfileId = up.Id "+
+                "WHERE up.ObjectId = @objectId AND cul.IsDefaultClient = 1";
+                let result = request
+                    .input('objectId', sql.UniqueIdentifier, objectId)
+                    .query(query)
+                    .then((result) => {                    
+                        if (typeof result !== "undefined" && result.recordset.length > 0) {
+                            resolve({ success: true, message: "record found", result: result.recordset });
+                        }
+                        else {
+                            resolve({ success: false, message: "record not found" });
+                        }
+                    })
+                    .then(() => conn.close())
+            })
+    });
+}
+
+async function getUserClients(objectId) {
+
+    return new Promise(function (resolve, reject) {
+        sql.connect(config)
+            .then((conn) => {
+                const request = conn.request();
+                let query = "SELECT cd.* from dbo.Client_Details cd inner join"+
+                "dbo.Client_User_Link cul on cd.ClientId = cul.ClientId inner join"+
+                "dbo.User_Profile up on cul.UserProfileId = up.Id"+
+                "WHERE up.ObjectId = @objectId"
+                let result = request
+                    .input('objectId', sql.UniqueIdentifier, objectId)
+                    .query(query)
+                    .then((result) => {
+                        if (err) console.log(err);
+                        if (typeof result !== "undefined" && result.recordset.length > 0) {
+                            resolve({ success: true, message: "record found", result: result.recordset });
+                        }
+                        else {
+                            resolve({ success: false, message: "record not found" });
+                        }
+                    })
+                    .then(() => conn.close())
+            })
+    });
+}
+
+async function getClientById(id) {
+
+    return new Promise(function (resolve, reject) {
+        sql.connect(config)
+            .then((conn) => {
+                const request = conn.request();
+                let query = "select * from [dbo].[Client_Details] where id = @id"
+                let result = request                    
+                    .input('id', sql.Int, id)
+                    .query(query)
+                    .then((result) => {
+                        if (err) console.log(err);
+                        if (typeof result !== "undefined" && result.recordset.length > 0) {
+                            resolve({ success: true, message: "record found", result: result.recordset });
+                        }
+                        else {
+                            resolve({ success: false, message: "record not found" });
+                        }
+                    })
+                    .then(() => conn.close())
+            })
+    });
+}
+
+async function getPermissionDetailsByUserId(objectId, clientId) {
     return new Promise(function (resolve, reject) {
         sql.connect(config)
             .then((conn) => {
                 const request = conn.request();
                 let query = "SELECT [user].Id, [user].[Name], [user].RoleId, up.MicroServiceId, up.PermissionLeveId, " +
-                    "ut.User_Type as [Role] , msd.[Description] as ModuleDiscription, pl.[Description] as PermissionDescription  from dbo.User_Permission up inner join " +
+                    "ut.User_Type as [Role] , msd.[Description] as ModuleDiscription, pl.[Description] as PermissionDescription  "+
+                    "from dbo.User_Permission up inner join " +
                     "dbo.User_Profile [user] on up.UserProfileId = [user].Id inner join " +
                     "dbo.Micro_Service_Definition msd on up.MicroServiceId = msd.Module_Id inner join " +
                     "dbo.Permission_Level pl on up.PermissionLeveId = pl.Id inner join " +
-                    "dbo.User_Type ut on [user].RoleId = ut.Id where [user].objectId = @objectId"
+                    "dbo.User_Type ut on [user].RoleId = ut.Id inner join "+
+                    "dbo.Client_Details cd on up.ClientId = cd.ClientId "+
+                    "WHERE [user].objectId = @objectId AND cd.ClientId = @clientId"
                 let result = request
                     .input('objectId', sql.UniqueIdentifier, objectId)
+                    .input('clientId', sql.Int, clientId)
                     .query(query)
                     .then((result) => {
 
@@ -176,24 +278,69 @@ async function getPermissionDetailsByUserId(objectId) {
     });
 }
 
+async function CreateClient(clientObject) {
+    return new Promise(function (resolve, reject) {
+        sql.connect(config)
+            .then((conn) => {
+                const request = conn.request();
+                let result = request
+                    .input('CompanyName', sql.NVarChar, clientObject.CompanyName)
+                    .input('Address1', sql.NVarChar, clientObject.Address1)
+                    .input('Address2', sql.NVarChar, clientObject.Address2)
+                    .input('ContactNumber', sql.NVarChar, clientObject.ContactNumber)
+                    .input('ZipCode', sql.NVarChar, clientObject.ZipCode)
+                    .query("INSERT INTO [dbo].[Client_Details]([CompanyName],[Address1],[Address2],[ContactNumber],[ZipCode])" +
+                        "VALUES(@CompanyName, @Address1, @Address2, @ContactNumber, @ZipCode); SELECT SCOPE_IDENTITY() As NewId;")
+                    .then((result) => {
+                        console.log(result);
+                        resolve(result);
+                    })
+            })
+    });
+}
+
+async function CreateUserProfile(userProfileObject) {
+    return new Promise(function (resolve, reject) {
+        sql.connect(config)
+            .then((conn) => {
+                const request = conn.request();
+                let result = request
+                    .input('roleId', sql.Int, userProfileObject.roleId)
+                    .input('name', sql.NVarChar, userProfileObject.name)
+                    .input('objectId', sql.UniqueIdentifier, userProfileObject.objectId)
+                    .input('tenantId', sql.UniqueIdentifier, userProfileObject.tenantId)
+                    .input('Phone', sql.NVarChar, userProfileObject.phone)
+                    .input('ClientId', sql.Int, userProfileObject.clientId)
+                    .input('IsDefaultClient', sql.Bit, userProfileObject.isDefaultClient)
+                    .output('new_id', sql.Int)
+                    .execute("usp_createUserProfile")
+                    .then((result) => {
+                        console.log(result) // count of recordsets returned by the procedure           
+                        console.log(result.output) // key/value collection of output values 
+                        resolve(result.output);
+                    })
+            })
+    });
+}
+
 async function SaveUserPermission(permissionObject) {
     return new Promise(function (resolve, reject) {
         sql.connect(config)
             .then((conn) => {
                 const request = conn.request();
                 let result = request
-                .input('assignee_profile_id', sql.Int, permissionObject.assigneeProfileId)
-                .input('permission_level_id', sql.Int, permissionObject.permissionLevelId)
-                .input('objectId', sql.UniqueIdentifier, permissionObject.objectId)
-                .input('micro_service_id', sql.Int, permissionObject.microServiceId)
-                .input('client_id', sql.Int, permissionObject.clientId)
-                .output('new_id', sql.Int)
-                .execute("usp_assign_user_permission")
-                .then((result) => {
-                    console.log(result) // count of recordsets returned by the procedure           
-                    console.log(result.output) // key/value collection of output values 
-                    resolve(result.output);        
-                })
+                    .input('assignee_profile_id', sql.Int, permissionObject.assigneeProfileId)
+                    .input('permission_level_id', sql.Int, permissionObject.permissionLevelId)
+                    .input('objectId', sql.UniqueIdentifier, permissionObject.objectId)
+                    .input('micro_service_id', sql.Int, permissionObject.microServiceId)
+                    .input('client_id', sql.Int, permissionObject.clientId)
+                    .output('new_id', sql.Int)
+                    .execute("usp_assign_user_permission")
+                    .then((result) => {
+                        console.log(result) // count of recordsets returned by the procedure           
+                        console.log(result.output) // key/value collection of output values 
+                        resolve(result.output);
+                    })
             })
-        });
+    });
 }
