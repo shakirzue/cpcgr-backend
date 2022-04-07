@@ -55,6 +55,8 @@ app.get('/', function (req, res) {
     res.send("Welcome to Zue Driver monitoring");
 });
 
+
+
 console.log("Welcome to Zue Driver monitoring");
 
 
@@ -65,5 +67,7 @@ app.use("/storage", storageRoute);
 
 
 var port = process.env.PORT || 3001;
-app.listen(port);
-  
+
+app.listen(port, () => {
+    console.log('Welcome to Zue Driver monitoring '+ port);
+});

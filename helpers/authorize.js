@@ -1,28 +1,20 @@
-const jwt = require('express-jwt');
+const jwt = require('jsonwebtoken');
+//const expressJwt = require('express-jwt');
+const jwt_decode = require('jwt-decode');
 const { secret } = require('../config.json');
 
 
-const authorize = (roles = []) => {
-    // roles param can be a single role string (e.g. Role.User or 'User') 
-    // or an array of roles (e.g. [Role.Admin, Role.User] or ['Admin', 'User'])
-    if (typeof roles === 'string') {
-        roles = [roles];
+const authorize = (req, res, next) => {
+   
+    const authHeader = req.headers.authorization;
+    const token = authHeader.split(' ')[1];
+
+    var decodedHeader = jwt_decode(token);
+    if (req.headers.oid === decodedHeader.oid) {
+        next();
     }
-
-    return [
-        // authenticate JWT token and attach user to request object (req.user)
-        jwt({ secret, algorithms: ['HS256'] }),
-
-        // authorize based on user role
-        (req, res, next) => {
-            if (roles.length && !roles.includes(req.user.role)) {
-                // user's role is not authorized
-                return res.status(401).json({ message: 'Unauthorized' });
-            }
-
-            // authentication and authorization successful
-            next();
-        }
-    ];
-}
+    else {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+};
 module.exports = authorize;
