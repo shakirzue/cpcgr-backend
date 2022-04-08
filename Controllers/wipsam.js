@@ -17,8 +17,20 @@ const getWipsam = (req, res, next) => {
         let data1;
         request.query(query, async (err, result) => {
             if (err) console.log(err);
-            data1 = result.recordset;
-            return res.json({ success: true, message: "Success", data: data1 });
+
+            if (result.recordset.length > 0) {
+                data1 = result.recordset;
+                return res.json({
+                    success: true,
+                    message: "Success",
+                    data: data1
+                });
+            } else {
+                return res.json({
+                    success: false,
+                    message: "unable to fetch record"
+                })
+            }
         });
     });
 
