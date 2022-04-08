@@ -313,7 +313,7 @@ async function CreateUserProfile(userProfileObject) {
                     .input('ClientId', sql.Int, userProfileObject.clientId)
                     .input('IsDefaultClient', sql.Bit, userProfileObject.isDefaultClient)
                     .output('new_id', sql.Int)
-                    .execute("usp_createUserProfile")
+                    .execute("usp_create_user_profile")
                     .then((result) => {
                         console.log(result) // count of recordsets returned by the procedure           
                         console.log(result.output) // key/value collection of output values 
