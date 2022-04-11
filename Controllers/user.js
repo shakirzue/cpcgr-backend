@@ -82,7 +82,7 @@ const createUserProfile = (req, res, next) => {
 }
 
 const saveUserPermission = (req, res, next) => {
-    userService.SaveUserPermission({objectId: req.body.objectId,assigneeProfileId: req.body.assigneeProfileId, permissionLevelId: req.body.permissionLevelId,microServiceId: req.body.microServiceId, clientId: req.body.clientId})
+    userService.SaveUserPermission({objectId: req.body.objectId,assigneeProfileId: req.body.assigneeProfileId, permissionLevelId: req.body.permissionLevelId,microServiceId: req.body.microServiceId, clientId: req.body.clientId, companyName: req.body.CompanyName})
         .then(user => user ? res.json(user) : res.sendStatus(404).json({ success: false, message: "unable to save record" }))
         .catch(err => next(err));
 }

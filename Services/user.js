@@ -306,7 +306,8 @@ async function CreateUserProfile(userProfileObject) {
             .then((conn) => {
                 const request = conn.request();
                 let result = request
-                    .input('RoleId', sql.Int, userProfileObject.roleId)
+                    .input('ClientId', sql.Int, userProfileObject.clientId)
+                    .input('IsDefaultClient', sql.Bit, userProfileObject.isDefaultClient)
                     .input('name', sql.NVarChar, userProfileObject.name)
                     .input('ObjectId', sql.UniqueIdentifier, userProfileObject.objectId)
                     .input('tenantId', sql.UniqueIdentifier, userProfileObject.tenantId)
@@ -333,6 +334,7 @@ async function SaveUserPermission(permissionObject) {
                     .input('objectId', sql.UniqueIdentifier, permissionObject.objectId)
                     .input('micro_service_id', sql.Int, permissionObject.microServiceId)
                     .input('client_id', sql.Int, permissionObject.clientId)
+                    .input('@company_name', sql.NVarChar, permissionObject.companyName)
                     .output('new_id', sql.Int)
                     .execute("usp_assign_user_permission")
                     .then((result) => {
