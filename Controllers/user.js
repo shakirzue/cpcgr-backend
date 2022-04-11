@@ -87,6 +87,12 @@ const saveUserPermission = (req, res, next) => {
         .catch(err => next(err));
 }
 
+const associateUserAndClient = (req, res, next) => {
+    userService.AssociateUserAndClient({userProfileId: req.body.userProfileId,clientId: req.body.clientId, isDefaultClient: req.body.isDefaultClient})
+        .then((user) => { console.log(user); user ? res.json(user) : res.sendStatus(404).json({ success: false, message: "unable to save record" })})
+        .catch(err => next(err));
+}
+
 module.exports = {
     authenticate,
     getAllUserByTanent,
@@ -101,5 +107,6 @@ module.exports = {
     getClientById,
     createUserProfile,
     createClient,
-    saveUserPermission
+    saveUserPermission,
+    associateUserAndClient
 };

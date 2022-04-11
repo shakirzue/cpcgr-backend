@@ -18,5 +18,6 @@ router.post('/getClientById', authorize, userController.getClientById);
 router.post('/createClient', authorize, userController.createClient);
 router.post('/createUserProfile', authorize, userController.createUserProfile);
 router.post('/saveUserPermission', authorize, userController.saveUserPermission);
+router.post('/associateUserAndClient', authorize, userController.associateUserAndClient);
 module.exports = router;
 
