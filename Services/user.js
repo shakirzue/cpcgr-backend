@@ -23,7 +23,8 @@ module.exports = {
     CreateUserProfile,
     getDefaultUserClient,
     getUserClients,
-    getClientById
+    getClientById,
+    AssociateUserAndClient
 };
 
 async function authenticate({ username, password }) {
@@ -305,13 +306,11 @@ async function CreateUserProfile(userProfileObject) {
             .then((conn) => {
                 const request = conn.request();
                 let result = request
-                    .input('roleId', sql.Int, userProfileObject.roleId)
+                    .input('RoleId', sql.Int, userProfileObject.roleId)
                     .input('name', sql.NVarChar, userProfileObject.name)
-                    .input('objectId', sql.UniqueIdentifier, userProfileObject.objectId)
+                    .input('ObjectId', sql.UniqueIdentifier, userProfileObject.objectId)
                     .input('tenantId', sql.UniqueIdentifier, userProfileObject.tenantId)
                     .input('Phone', sql.NVarChar, userProfileObject.phone)
-                    .input('ClientId', sql.Int, userProfileObject.clientId)
-                    .input('IsDefaultClient', sql.Bit, userProfileObject.isDefaultClient)
                     .output('new_id', sql.Int)
                     .execute("usp_create_user_profile")
                     .then((result) => {
@@ -340,6 +339,25 @@ async function SaveUserPermission(permissionObject) {
                         console.log(result) // count of recordsets returned by the procedure           
                         console.log(result.output) // key/value collection of output values 
                         resolve(result.output);
+                    })
+            })
+    });
+}
+
+async function AssociateUserAndClient(userProfileObject) {
+    return new Promise(function (resolve, reject) {
+        sql.connect(config)
+            .then((conn) => {
+                const request = conn.request();
+                let result = request                 
+                    .input('UserProfileId', sql.Int, userProfileObject.userProfileId)
+                    .input('ClientId', sql.Int, userProfileObject.clientId)
+                    .input('IsDefaultClient', sql.Bit, userProfileObject.isDefaultClient)
+                    .query("INSERT INTO [dbo].[Client_User_Link] (ClientId, UserProfileId, IsDefaultClient) VALUES (@ClientId, @UserProfileId, @IsDefaultClient); SELECT SCOPE_IDENTITY() AS [NewId];")
+                    .then((result) => {
+                        console.log(result) // count of recordsets returned by the procedure           
+                       
+                        resolve(({ success: true, message: "record saved successfully.", result: result.recordset[0].NewId }));
                     })
             })
     });
