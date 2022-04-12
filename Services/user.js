@@ -248,17 +248,16 @@ async function getClientById(id) {
 }
 
 async function getPermissionDetailsByUserId(objectId, clientId) {
-    return new Promise(function (resolve, reject) {
+    return new Promise(function (resolve, reject) {        
         sql.connect(config)
             .then((conn) => {
                 const request = conn.request();
-                let query = "SELECT [user].Id, [user].[Name], [user].RoleId, up.MicroServiceId, up.PermissionLeveId, " +
-                    "ut.User_Type as [Role] , msd.[Description] as ModuleDiscription, pl.[Description] as PermissionDescription  "+
+                let query = "SELECT [user].Id, [user].[Name], up.MicroServiceId, up.PermissionLeveId, " +
+                    "msd.[Description] as ModuleDiscription, pl.[Description] as PermissionDescription  "+
                     "from dbo.User_Permission up inner join " +
                     "dbo.User_Profile [user] on up.UserProfileId = [user].Id inner join " +
                     "dbo.Micro_Service_Definition msd on up.MicroServiceId = msd.Module_Id inner join " +
                     "dbo.Permission_Level pl on up.PermissionLeveId = pl.Id inner join " +
-                    "dbo.User_Type ut on [user].RoleId = ut.Id inner join "+
                     "dbo.Client_Details cd on up.ClientId = cd.ClientId "+
                     "WHERE [user].objectId = @objectId AND cd.ClientId = @clientId"
                 let result = request
@@ -266,7 +265,6 @@ async function getPermissionDetailsByUserId(objectId, clientId) {
                     .input('clientId', sql.Int, clientId)
                     .query(query)
                     .then((result) => {
-
                         if (result.recordset.length > 0) {
                             resolve(({ success: true, message: "record fetched successfully.", result: result.recordset }));
                         }
@@ -290,12 +288,16 @@ async function CreateClient(clientObject) {
                     .input('Address2', sql.NVarChar, clientObject.Address2)
                     .input('ContactNumber', sql.NVarChar, clientObject.ContactNumber)
                     .input('ZipCode', sql.NVarChar, clientObject.ZipCode)
-                    .query("INSERT INTO [dbo].[Client_Details]([CompanyName],[Address1],[Address2],[ContactNumber],[ZipCode])" +
-                        "VALUES(@CompanyName, @Address1, @Address2, @ContactNumber, @ZipCode); SELECT SCOPE_IDENTITY() As NewId;")
+                    .input('ContactPerson', sql.NVarChar, clientObject.ContactPerson)
+                    .query("INSERT INTO [dbo].[Client_Details]([CompanyName],[Address1],[Address2],[ContactNumber],[ZipCode],[ContactPerson])" +
+                        "VALUES(@CompanyName, @Address1, @Address2, @ContactNumber, @ZipCode, @ContactPerson); SELECT SCOPE_IDENTITY() As NewId;")
                     .then((result) => {
                         console.log(result);
                         resolve(result);
-                    })
+                    }).catch(err => {
+                        console.log('error: ',err);
+                        resolve(({ success: false, message: err}));
+                      });
             })
     });
 }
@@ -316,8 +318,11 @@ async function CreateUserProfile(userProfileObject) {
                     .then((result) => {
                         console.log(result) // count of recordsets returned by the procedure           
                         console.log(result.output) // key/value collection of output values 
-                        resolve(result.output);
-                    })
+                        resolve(result.output.new_id);
+                    }).catch(err => {
+                        console.log('error: ',err);
+                        resolve(({ success: false, message: err}));
+                      });
             })
     });
 }
@@ -333,13 +338,20 @@ async function SaveUserPermission(permissionObject) {
                     .input('objectId', sql.UniqueIdentifier, permissionObject.objectId)
                     .input('micro_service_id', sql.Int, permissionObject.microServiceId)
                     .input('client_id', sql.Int, permissionObject.clientId)
+<<<<<<< Updated upstream
+=======
+                    .input('company_name', sql.NVarChar, permissionObject.companyName)
+>>>>>>> Stashed changes
                     .output('new_id', sql.Int)
                     .execute("usp_assign_user_permission")
                     .then((result) => {
                         console.log(result) // count of recordsets returned by the procedure           
                         console.log(result.output) // key/value collection of output values 
-                        resolve(result.output);
-                    })
+                        resolve(result.output.new_id);
+                    }).catch(err => {
+                        console.log('error: ',err);
+                        resolve(({ success: false, message: err}));
+                      });
             })
     });
 }
@@ -354,11 +366,13 @@ async function AssociateUserAndClient(userProfileObject) {
                     .input('ClientId', sql.Int, userProfileObject.clientId)
                     .input('IsDefaultClient', sql.Bit, userProfileObject.isDefaultClient)
                     .query("INSERT INTO [dbo].[Client_User_Link] (ClientId, UserProfileId, IsDefaultClient) VALUES (@ClientId, @UserProfileId, @IsDefaultClient); SELECT SCOPE_IDENTITY() AS [NewId];")
-                    .then((result) => {
+                    .then ((result) => {                       
                         console.log(result) // count of recordsets returned by the procedure           
-                       
                         resolve(({ success: true, message: "record saved successfully.", result: result.recordset[0].NewId }));
-                    })
+                    }).catch(err => {
+                        console.log('error: ',err);
+                        resolve(({ success: false, message: err}));
+                      });
             })
     });
 }

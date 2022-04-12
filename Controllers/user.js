@@ -70,20 +70,25 @@ const getUserPermissionByObjectId = (req, res, next) => {
 }
 
 const createClient = (req, res, next) => {
-    userService.CreateClient({CompanyName: req.body.companyName, Address1: req.body.address1, Address2: req.body.address2,ContactNumber: req.body.contactNumber, ZipCode: req.body.zipCode})
+    userService.CreateClient({CompanyName: req.body.companyName, Address1: req.body.address1, Address2: req.body.address2,ContactNumber: req.body.contactNumber, ZipCode: req.body.zipCode, ContactPerson: req.body.contactPerson})
         .then(user => user ? res.json(user) : res.sendStatus(404).json({ success: false, message: "unable to save record" }))
         .catch(err => next(err));
 }
 
 const createUserProfile = (req, res, next) => {
-    userService.CreateUserProfile({roleId: req.body.roleId, name: req.body.name, objectId: req.body.objectId,tenantId: req.body.tenantId, phone: req.body.phone, clientId: req.body.clientId, isDefaultClient: req.body.isDefaultClient})
+    userService.CreateUserProfile({ name: req.body.name, objectId: req.body.objectId,tenantId: req.body.tenantId, phone: req.body.phone, clientId: req.body.clientId, isDefaultClient: req.body.isDefaultClient})
         .then(user => user ? res.json(user) : res.sendStatus(404).json({ success: false, message: "unable to save record" }))
         .catch(err => next(err));
 }
 
 const saveUserPermission = (req, res, next) => {
+<<<<<<< Updated upstream
     userService.SaveUserPermission({objectId: req.body.objectId,assigneeProfileId: req.body.assigneeProfileId, permissionLevelId: req.body.permissionLevelId,microServiceId: req.body.microServiceId, clientId: req.body.clientId})
         .then(user => user ? res.json(user) : res.sendStatus(404).json({ success: false, message: "unable to save record" }))
+=======
+    userService.SaveUserPermission({objectId: req.body.objectId,assigneeProfileId: req.body.assigneeProfileId, permissionLevelId: req.body.permissionLevelId,microServiceId: req.body.microServiceId, clientId: req.body.clientId, companyName: req.body.CompanyName})
+        .then(user => user ? res.json(user) : res.json({ success: false, message: "unable to save record" }))
+>>>>>>> Stashed changes
         .catch(err => next(err));
 }
 
