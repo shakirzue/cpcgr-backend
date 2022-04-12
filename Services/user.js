@@ -307,12 +307,13 @@ async function CreateUserProfile(userProfileObject) {
         sql.connect(config)
             .then((conn) => {
                 const request = conn.request();
-                let result = request
-                    .input('RoleId', sql.Int, userProfileObject.roleId)
-                    .input('name', sql.NVarChar, userProfileObject.name)
+                let result = request              
+                    .input('Name', sql.NVarChar, userProfileObject.name)
                     .input('ObjectId', sql.UniqueIdentifier, userProfileObject.objectId)
                     .input('tenantId', sql.UniqueIdentifier, userProfileObject.tenantId)
                     .input('Phone', sql.NVarChar, userProfileObject.phone)
+                    .input('ClientId', sql.Int, userProfileObject.clientId)
+                    .input('IsDefaultClient', sql.Bit, userProfileObject.isDefaultClient)
                     .output('new_id', sql.Int)
                     .execute("usp_create_user_profile")
                     .then((result) => {
