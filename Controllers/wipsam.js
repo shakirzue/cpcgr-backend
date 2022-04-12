@@ -16,11 +16,6 @@ const getWipsam = (req, res, next) => {
         let query = "SELECT * FROM [dbo].[Module_File_Type] Where [ModuleId] =" + modelId;
         let data1;
         request.query(query, async (err, result) => {
-<<<<<<< Updated upstream
-            if (err) console.log(err);
-            data1 = result.recordset;
-            return res.json({ success: true, message: "Success", data: data1 });
-=======
             if (err) {console.log(err);return res.json({
                 success: false,
                 message: "unable to fetch record"
@@ -39,7 +34,6 @@ const getWipsam = (req, res, next) => {
                     message: "unable to fetch record"
                 });
             }
->>>>>>> Stashed changes
         });
     });
 

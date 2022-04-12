@@ -338,10 +338,7 @@ async function SaveUserPermission(permissionObject) {
                     .input('objectId', sql.UniqueIdentifier, permissionObject.objectId)
                     .input('micro_service_id', sql.Int, permissionObject.microServiceId)
                     .input('client_id', sql.Int, permissionObject.clientId)
-<<<<<<< Updated upstream
-=======
                     .input('company_name', sql.NVarChar, permissionObject.companyName)
->>>>>>> Stashed changes
                     .output('new_id', sql.Int)
                     .execute("usp_assign_user_permission")
                     .then((result) => {
