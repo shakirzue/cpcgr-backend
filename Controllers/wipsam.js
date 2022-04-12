@@ -16,7 +16,10 @@ const getWipsam = (req, res, next) => {
         let query = "SELECT * FROM [dbo].[Module_File_Type] Where [ModuleId] =" + modelId;
         let data1;
         request.query(query, async (err, result) => {
-            if (err) console.log(err);
+            if (err) {console.log(err);return res.json({
+                success: false,
+                message: "unable to fetch record"
+            })};
 
             if (result.recordset.length > 0) {
                 data1 = result.recordset;
@@ -29,7 +32,7 @@ const getWipsam = (req, res, next) => {
                 return res.json({
                     success: false,
                     message: "unable to fetch record"
-                })
+                });
             }
         });
     });
