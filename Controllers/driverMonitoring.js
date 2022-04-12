@@ -40,8 +40,18 @@ const CreateAction = (req, res, next) => {
 
             console.log(result) // count of recordsets returned by the procedure           
             console.log(result.output) // key/value collection of output values
-
-            return res.json({ success: true, message: "action created successfully and notification sent to stakeholder.", result: 'Action created with id:' + result.output });
+            if (result.output.new_action_notification_id > 0) {
+                return res.json({
+                    success: true,
+                    message: "action created successfully and notification sent to stakeholder.",
+                    result: 'Action created with id:' + result.output
+                });
+            } else {
+                return res.json({
+                    success: false,
+                    message: "cannot create record with these details at the moment"
+                });
+            }
         });
     });
 }
@@ -50,7 +60,6 @@ const CreateActionNotes = (req, res, next) => {
     const action_id = req.body.action_id;
     const note = req.body.note;
     const oid = req.body.objectId;
-
     sql.connect(config, function (err) {
         request = new sql.Request();
         request.input('action_id', sql.Int, action_id)
@@ -64,10 +73,7 @@ const CreateActionNotes = (req, res, next) => {
             console.log(result.output) // key/value collection of output values           
         })
     });
-
-
 }
-
 
 const UpdateActionResponseType = (req, res, next) => {
     if (typeof req.body.action_id !== 'undefined' && typeof req.body.action_id !== 'undefined') {
@@ -83,14 +89,20 @@ const UpdateActionResponseType = (req, res, next) => {
             request.query('Update [dbo].[Action_Notification] SET ResponseType_id = @response_type_id where id = @action_id', (err, result) => {
                 if (err) console.log(err);
 
-                return res.json({ success: true, message: "record has been updated successfully.", result: result });
+                return res.json({
+                    success: true,
+                    message: "record has been updated successfully.",
+                    result: result
+                });
             });
 
 
         });
-    }
-    else {
-        return res.status(400).json({ isAuth: false, message: "Credential(s) have not been provided" });
+    } else {
+        return res.status(400).json({
+            isAuth: false,
+            message: "Credential(s) have not been provided"
+        });
     }
 }
 
@@ -108,36 +120,47 @@ const UpdateActionStatus = (req, res, next) => {
             request.query('Update [dbo].[Action_Notification] SET Status_id = @status_id where id = @action_id', (err, result) => {
                 if (err) console.log(err);
 
-                return res.json({ success: true, message: "record has been updated successfully.", result: result });
+                return res.json({
+                    success: true,
+                    message: "record has been updated successfully.",
+                    result: result
+                });
             });
 
 
         });
-    }
-    else {
-        return res.status(400).json({ isAuth: false, message: "Credential(s) have not been provided" });
+    } else {
+        return res.status(400).json({
+            isAuth: false,
+            message: "Credential(s) have not been provided"
+        });
     }
 }
 
 const GetActionByEmail = (req, res, next) => {
-
     const oid = req.body.objectId;
-    var isassignee;
-    if (typeof req.body.isassignee === 'undefined' || req.body.isassignee === null) {
-        isassignee = false;
-    }
-    else {
-        isassignee = req.body.isassignee;
-    }    
+   
     sql.connect(config, function (err) {
         request = new sql.Request();
-        request.input('objectId', sql.UniqueIdentifier, oid)
-        request.input('userisassignee', sql.Bit, isassignee)
+        request.input('objectId', sql.UniqueIdentifier, oid)      
         request.execute('usp_get_action_notification_by_objectId', (err, result) => {
-            if (typeof result !== 'undefined' && result.recordset.length > 0)
-                return res.json({ success: true, message: "record found", actions: result.recordset, owner_action_note: result.recordsets[1], assignee_action_note: result.recordsets[2] });
-            else
-                return res.status(401).json({ success: false, message: "record not found" })
+            try {                
+                return res.json({
+                    success: true,
+                    message: "record found",
+                    actions: result.recordset,
+                    owner_action_note: result.recordsets[1],
+                    assignee_action_note: result.recordsets[2],
+                    assigned_action: result.recordsets[3],
+                    assigned_owner_action_node: result.recordsets[4],
+                    assigned_assignee_action_node: result.recordsets[5]
+                });
+            } catch(error) {
+                return res.status(401).json({
+                    success: false,
+                    message: "record not found: "+error
+                });
+            }
         })
     });
 }
@@ -145,19 +168,17 @@ const GetActionByEmail = (req, res, next) => {
 const GetActionNoteByEmail = (req, res, next) => {
 
     const oid = req.body.objectId;
-    var isassignee;
-    if (typeof req.body.isassignee === 'undefined' || req.body.isassignee === null) {
-        isassignee = false;
-    }
-    else {
-        isassignee = req.body.isassignee;
-    }
+    const actionId = req.body.action_id;
     sql.connect(config, function (err) {
         request = new sql.Request();
+        request.input('action_id', sql.Int, actionId)
         request.input('objectId', sql.UniqueIdentifier, oid)
-        request.input('userisassignee', sql.Bit, isassignee)
-        request.execute('usp_get_action_notification_by_objectId', (err, result) => {
-            return res.json({ success: true, message: "record found", actions: result.recordset });;
+        request.execute('usp_get_action_notification_note', (err, result) => {
+            return res.json({
+                success: true,
+                message: "record found",
+                actions: result.recordset
+            });;
         })
     });
 }
@@ -168,8 +189,7 @@ const GetActionCountByStatus = (req, res, next) => {
     var isassignee;
     if (typeof req.body.isassignee === 'undefined' || req.body.isassignee === null) {
         isassignee = false;
-    }
-    else {
+    } else {
         isassignee = req.body.isassignee;
     }
     sql.connect(config, function (err) {
@@ -177,7 +197,11 @@ const GetActionCountByStatus = (req, res, next) => {
         request.input('objectId', sql.UniqueIdentifier, oid)
         request.input('userisassignee', sql.Bit, isassignee)
         request.execute('usp_get_action_notification_count_by_status', (err, result) => {
-            return res.json({ success: true, message: "record found", result: result.recordset });;
+            return res.json({
+                success: true,
+                message: "record found",
+                result: result.recordset
+            });;
         })
     });
 }
@@ -189,9 +213,15 @@ const GetStakeholders = (req, res, next) => {
         request.input('objectId', sql.UniqueIdentifier, oid)
         request.execute('usp_get_stakeholders', (err, result) => {
             if (result.recordset.length > 0)
-                return res.json({ success: true, message: "record found", result: result.recordset });
+                return res.json({
+                    success: true,
+                    message: "record found",
+                    result: result.recordset
+                });
             else
-                return res.status(401).json({ message: 'stakeholder record not found' });
+                return res.status(401).json({
+                    message: 'stakeholder record not found'
+                });
         })
     });
 
@@ -216,10 +246,16 @@ const GetDisposition = (req, res, next) => {
             // send records as a response
 
             if (result.recordset.length > 0) {
-                return res.json({ success: true, message: "user logged in successfully.", result: result.recordset });
-            }
-            else {
-                return res.status(400).json({ isAuth: false, message: "Email/Password has not provided" });
+                return res.json({
+                    success: true,
+                    message: "user logged in successfully.",
+                    result: result.recordset
+                });
+            } else {
+                return res.status(400).json({
+                    isAuth: false,
+                    message: "Email/Password has not provided"
+                });
             }
         });
     });
@@ -244,10 +280,16 @@ const GetResponseType = (req, res, next) => {
             // send records as a response
 
             if (result.recordset.length > 0) {
-                return res.json({ success: true, message: "record fetched successfully.", result: result.recordset });
-            }
-            else {
-                return res.status(400).json({ isAuth: false, message: "unable to fetch record" });
+                return res.json({
+                    success: true,
+                    message: "record fetched successfully.",
+                    result: result.recordset
+                });
+            } else {
+                return res.status(400).json({
+                    isAuth: false,
+                    message: "unable to fetch record"
+                });
             }
         });
     });
@@ -272,10 +314,16 @@ const GetActionStatus = (req, res, next) => {
             // send records as a response
 
             if (result.recordset.length > 0) {
-                return res.json({ success: true, message: "record fetched successfully.", result: result.recordset });
-            }
-            else {
-                return res.status(400).json({ isAuth: false, message: "unable to fetch record" });
+                return res.json({
+                    success: true,
+                    message: "record fetched successfully.",
+                    result: result.recordset
+                });
+            } else {
+                return res.status(400).json({
+                    isAuth: false,
+                    message: "unable to fetch record"
+                });
             }
         });
     });
@@ -298,10 +346,16 @@ const GetRole = (req, res, next) => {
             // send records as a response
 
             if (result.recordset.length > 0) {
-                return res.json({ success: true, message: "record fetched successfully.", result: result.recordset });
-            }
-            else {
-                return res.status(400).json({ isAuth: false, message: "unable to fetch record" });
+                return res.json({
+                    success: true,
+                    message: "record fetched successfully.",
+                    result: result.recordset
+                });
+            } else {
+                return res.status(400).json({
+                    isAuth: false,
+                    message: "unable to fetch record"
+                });
             }
         });
     });
@@ -316,10 +370,16 @@ const GenerateCallLogAndCoordinate = async (req, res, next) => {
     const callLogdata = await drivermonitoringservice.GetDriverCallLogRecords(Date);
     var result = drivermonitoringservice.CompareTripDataWithLogData(salesOrders, callLogdata, Date);
     if (result) {
-        return res.json({ success: true, message: "log generated successfully.", result: result.recordset });
-    }
-    else {
-        return res.status(400).json({ success: false, message: "unable to generate record" });
+        return res.json({
+            success: true,
+            message: "log generated successfully.",
+            result: result.recordset
+        });
+    } else {
+        return res.status(400).json({
+            success: false,
+            message: "unable to generate record"
+        });
     }
 }
 
@@ -338,14 +398,22 @@ const GetCallLocationLogs = (req, res, next) => {
                 ',solog.[CustomerAddressLatitude],solog.[CustomerAddressLongitude],solog.[DifferenceInCoordinates]' +
                 ',solog.[DifferenceInLastCallAndSkipTimes], ea.[Exception Type] as ExceptionType, ea.Note ' +
                 'from dbo.SalesOrder_Logs_Details as solog inner join dbo.DriverMonitoringExceptionActivityData ea ' +
-                'on solog.[SalesOrderNumber] = ea.[Order #] WHERE solog.Date = @Date', function (err, result) {
+                'on solog.[SalesOrderNumber] = ea.[Order #] WHERE solog.Date = @Date',
+                function (err, result) {
 
                     if (err) console.log(err)
                     if (result.recordset.length > 0) {
-                        return res.json({ success: true, message: "record fetched successfully.", result: result.recordset });
-                    }
-                    else {
-                        return res.status(400).json({ success: false, message: "unable to fetch record", result: [] });
+                        return res.json({
+                            success: true,
+                            message: "record fetched successfully.",
+                            result: result.recordset
+                        });
+                    } else {
+                        return res.status(400).json({
+                            success: false,
+                            message: "unable to fetch record",
+                            result: []
+                        });
                     }
                 });
     });
@@ -373,8 +441,7 @@ const GetTripRoutes = (req, res, next) => {
 
             if (result.recordset.length > 0) {
                 tripactivityroute = result.recordset;
-            }
-            else {
+            } else {
                 querymessage = "Error in Trip event activity data fetch";
             }
 
@@ -404,14 +471,21 @@ const GetTripRoutes = (req, res, next) => {
                         item['Longitude'] = coordinates.Longitude;
                         addressProcessed++;
                         if (addressProcessed === (array.length - 1)) {
-                            return res.json({ success: true, message: querymessage, tripcoordinates: tripassignedroute, activitycoordinates: tripactivityroute });
+                            return res.json({
+                                success: true,
+                                message: querymessage,
+                                tripcoordinates: tripassignedroute,
+                                activitycoordinates: tripactivityroute
+                            });
                         }
                     });
 
-                }
-                else {
+                } else {
                     querymessage = "Error in fetching Sales order log data";
-                    return res.status(400).json({ success: false, message: querymessage });
+                    return res.status(400).json({
+                        success: false,
+                        message: querymessage
+                    });
                 }
             });
         });
@@ -423,7 +497,12 @@ const iframe = (req, res, next) => {
     var src = 'https://app.powerbi.com/view?r=eyJrIjoiMGVmMzc0ZDItNzdiYS00NDdmLThhZjktZTY2ZmQ3NzgxOTY5IiwidCI6IjdkODViMzVjLTg3MmUtNDA1NS1hZjkyLTgwZmI3YzlmOTRiNCIsImMiOjF9';
     var title = 'Driver Monitoring Live - Trip Analysis';
     var allowfullscreen = "true"
-    return res.send({ message: "Drivers status", src: src, title: title, isFullScreen: allowfullscreen });
+    return res.send({
+        message: "Drivers status",
+        src: src,
+        title: title,
+        isFullScreen: allowfullscreen
+    });
 }
 
 
@@ -446,4 +525,3 @@ module.exports = {
     iframe
 
 };
-
