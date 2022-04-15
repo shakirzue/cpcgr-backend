@@ -29,16 +29,12 @@ router.get('/GetResponseType', authorize, driverMonitoringController.GetResponse
 
 router.get('/GetActionStatus', authorize, driverMonitoringController.GetActionStatus);
 
-
 router.get('/GetRole', authorize, driverMonitoringController.GetRole);
 
 router.post('/GetCallLocationLogs', authorize, driverMonitoringController.GetCallLocationLogs);
 
 router.post('/GetTripRoutes', authorize, driverMonitoringController.GetTripRoutes);
 
-
 router.post("/iframe", driverMonitoringController.iframe);
-
-
 
 module.exports = router;
