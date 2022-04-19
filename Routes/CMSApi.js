@@ -5,4 +5,5 @@ const authorize = require('../helpers/authorize');
 
 router.post("/DMEServiceDataStorage", authorize,cmsApiController.DmeServiceDataStore);
 router.post("/DMEGeographyDataStorage", authorize,cmsApiController.DmeGeographyDataStore);
+router.post("/DmeDeleteExistingData", authorize,cmsApiController.DmeDeleteExistingData);
 module.exports = router;
