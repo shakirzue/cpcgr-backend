@@ -176,7 +176,7 @@ const DmeDeleteExistingData = (req, res, next) =>{
         request = new sql.Request();
 
         // query to the database and get the records
-            let query = "delete from [dbo].["+req.body.tableName+"];"
+            let query = "truncate table [dbo].["+req.body.tableName+"];"
             request.query(query, function (err, result) {
                 if (err) console.log(err)
                 console.log(result);
