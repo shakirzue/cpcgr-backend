@@ -191,7 +191,7 @@ async function getDefaultUserClient(objectId) {
                             resolve({ success: false, message: "record not found" });
                         }
                     })
-                    .then(() => conn.close())
+                    //.then(() => conn.close())
             })
     });
 }
@@ -202,15 +202,14 @@ async function getUserClients(objectId) {
         sql.connect(config)
             .then((conn) => {
                 const request = conn.request();
-                let query = "SELECT cd.* from dbo.Client_Details cd inner join"+
-                "dbo.Client_User_Link cul on cd.ClientId = cul.ClientId inner join"+
-                "dbo.User_Profile up on cul.UserProfileId = up.Id"+
+                let query = "SELECT cd.*,cul.IsDefaultClient from dbo.Client_Details cd inner join "+
+                "dbo.Client_User_Link cul on cd.ClientId = cul.ClientId inner join "+
+                "dbo.User_Profile up on cul.UserProfileId = up.Id "+
                 "WHERE up.ObjectId = @objectId"
                 let result = request
                     .input('objectId', sql.UniqueIdentifier, objectId)
                     .query(query)
                     .then((result) => {
-                        if (err) console.log(err);
                         if (typeof result !== "undefined" && result.recordset.length > 0) {
                             resolve({ success: true, message: "record found", result: result.recordset });
                         }
@@ -218,7 +217,7 @@ async function getUserClients(objectId) {
                             resolve({ success: false, message: "record not found" });
                         }
                     })
-                    .then(() => conn.close())
+                   // .then(() => conn.close())
             })
     });
 }
@@ -272,7 +271,7 @@ async function getPermissionDetailsByUserId(objectId, clientId) {
                             resolve(({ success: false, message: "unable to fetch record" }));
                         }
                     })
-                    .then(() => conn.close())
+                    //.then(() => conn.close())
             })
     });
 }

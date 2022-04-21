@@ -8,15 +8,16 @@ const cookieParser = require('cookie-parser');
 const config = require('../config/config');
 
 
-const getWipsam = (req, res, next) => {
+const getClientIframe = (req, res, next) => {
     var modelId = req.body.ModuleId;
-
+    var clientId = req.body.ClientId;
     sql.connect(config, function (err) {
         request = new sql.Request();
-        let query = "SELECT * FROM [dbo].[Module_File_Type] Where [ModuleId] =" + modelId;
+        let query = "SELECT * FROM [dbo].[Client_PowerBi_Link] Where [ModuleId] =" + modelId+" AND [ClientId]="+clientId;
         let data1;
         request.query(query, async (err, result) => {
-            if (err) {console.log(err);return res.json({
+            if (err) {console.log(err);
+            return res.json({
                 success: false,
                 message: "unable to fetch record"
             })};
@@ -41,5 +42,5 @@ const getWipsam = (req, res, next) => {
 
 
 module.exports = {
-    getWipsam
+    getClientIframe
 };
