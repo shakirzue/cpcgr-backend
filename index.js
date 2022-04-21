@@ -9,7 +9,7 @@ const cookieParser = require('cookie-parser');
 const config = require('./config/config');
 const driverMonitoringRoute = require('./Routes/driverMonitoring');
 const userRoute = require('./Routes/user');
-const wipsamRoute = require('./Routes/wipsam');
+const powerbiRoute = require('./Routes/powerbi');
 const storageRoute = require('./Routes/storage');
 const cmsapistorage = require('./Routes/CMSApi');
 const path = require('path');
@@ -63,7 +63,7 @@ console.log("Welcome to Zue Driver monitoring");
 
 app.use("/user", userRoute);
 app.use("/drivermonitoring", driverMonitoringRoute);
-app.use("/wipsam", wipsamRoute);
+app.use("/powerbi", powerbiRoute);
 app.use("/storage", storageRoute);
 app.use("/cmsapi", cmsapistorage);
 

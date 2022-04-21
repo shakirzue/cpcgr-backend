@@ -53,7 +53,7 @@ const getDefaultClient = (req, res, next) => {
 
 const getAllUserClients = (req, res, next) => {
     userService.getUserClients(req.body.objectId)
-        .then(user => user ? res.json(user) : res.sendStatus(404).json({ success: false, message: "unable to fetch record" }))
+        .then(user => user ? res.json(user) : res.Status(404).json({ success: false, message: "unable to fetch record" }))
         .catch(err => next(err));
 }
 
