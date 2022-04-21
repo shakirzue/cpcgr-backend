@@ -24,7 +24,6 @@ const getClientIframe = (req, res, next) => {
 
             if (result.recordset.length > 0) {
                 data1 = result.recordset;
-                console.log(data1);
                 return res.json({
                     success: true,
                     message: "Success",
