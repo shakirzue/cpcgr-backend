@@ -13,5 +13,4 @@ router.post("/getFileTypesByModule", authorize, storageController.getFileTypesBy
 
 router.post("/getFileTypeDetailByFileTypeId", authorize, storageController.getFileTypeDetailByFileTypeId);
 
-
 module.exports = router;

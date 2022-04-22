@@ -11,11 +11,12 @@ const driverMonitoringRoute = require('./Routes/driverMonitoring');
 const userRoute = require('./Routes/user');
 const powerbiRoute = require('./Routes/powerbi');
 const storageRoute = require('./Routes/storage');
+const cmsapistorage = require('./Routes/CMSApi');
 const path = require('path');
 
 require("dotenv").config();
 
-app.use(express.json());
+app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({limit: '500mb', extended: true }));
 app.use(express.json({ type: 'application/*+json'}));
 // app.use(bodyParser.urlencoded({limit: '500mb', extended: true }));
@@ -64,7 +65,7 @@ app.use("/user", userRoute);
 app.use("/drivermonitoring", driverMonitoringRoute);
 app.use("/powerbi", powerbiRoute);
 app.use("/storage", storageRoute);
-
+app.use("/cmsapi", cmsapistorage);
 
 var port = process.env.PORT || 3001;
 
