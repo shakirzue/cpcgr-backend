@@ -251,12 +251,12 @@ async function getPermissionDetailsByUserId(objectId, clientId) {
         sql.connect(config)
             .then((conn) => {
                 const request = conn.request();
-                let query = "SELECT [user].Id, [user].[Name], up.MicroServiceId, up.PermissionLeveId, " +
+                let query = "SELECT [user].Id, [user].[Name], up.MicroServiceId, up.PermissionLevelId, " +
                     "msd.[Description] as ModuleDiscription, pl.[Description] as PermissionDescription  "+
                     "from dbo.User_Permission up inner join " +
                     "dbo.User_Profile [user] on up.UserProfileId = [user].Id inner join " +
                     "dbo.Micro_Service_Definition msd on up.MicroServiceId = msd.Module_Id inner join " +
-                    "dbo.Permission_Level pl on up.PermissionLeveId = pl.Id inner join " +
+                    "dbo.Permission_Level pl on up.PermissionLevelId = pl.Id inner join " +
                     "dbo.Client_Details cd on up.ClientId = cd.ClientId "+
                     "WHERE [user].objectId = @objectId AND cd.ClientId = @clientId"
                 let result = request
