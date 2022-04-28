@@ -208,9 +208,11 @@ const GetActionCountByStatus = (req, res, next) => {
 
 const GetStakeholders = (req, res, next) => {
     const oid = req.body.objectId;
+    const clientId = req.body.clientId;
     sql.connect(config, function (err) {
         request = new sql.Request();
         request.input('objectId', sql.UniqueIdentifier, oid)
+        request.input('clientId', sql.Int, clientId)
         request.execute('usp_get_stakeholders', (err, result) => {
             if (result.recordset.length > 0)
                 return res.json({
@@ -224,9 +226,6 @@ const GetStakeholders = (req, res, next) => {
                 });
         })
     });
-
-
-
 }
 
 const GetDisposition = (req, res, next) => {
@@ -400,7 +399,6 @@ const GetCallLocationLogs = (req, res, next) => {
                 'from dbo.SalesOrder_Logs_Details as solog inner join dbo.DriverMonitoringExceptionActivityData ea ' +
                 'on solog.[SalesOrderNumber] = ea.[Order #] WHERE solog.Date = @Date',
                 function (err, result) {
-
                     if (err) console.log(err)
                     if (result.recordset.length > 0) {
                         return res.json({
@@ -415,9 +413,9 @@ const GetCallLocationLogs = (req, res, next) => {
                             result: []
                         });
                     }
-                });
+                }
+            );
     });
-
 }
 
 

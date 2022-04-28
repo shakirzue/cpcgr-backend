@@ -35,7 +35,7 @@ app.use(bodyParser.json({ type: 'application/*+json', limit: '500mb'}));
 app.use(express.static(path.join(__dirname, "/build")));
 
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: process.env.CLIENT_LOCAL_URL,
     optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
     methods: ['GET', 'POST', 'DELETE', 'UPDATE', 'PUT', 'PATCH']
 }));
@@ -52,14 +52,11 @@ app.use(cookieParser());
 app.use(fileUpload());
 
 app.get('/', function (req, res) {
-    console.log("Welcome to Zue Driver monitoring");
-    res.send("Welcome to Zue Driver monitoring");
+    console.log("Welcome to CPCGR portal ");
+    res.send("Welcome to CPCGR portal ");
 });
 
-
-
-console.log("Welcome to Zue Driver monitoring");
-
+console.log("Welcome to CPCGR portal ");
 
 app.use("/user", userRoute);
 app.use("/drivermonitoring", driverMonitoringRoute);
@@ -70,5 +67,5 @@ app.use("/cmsapi", cmsapistorage);
 var port = process.env.PORT || 3001;
 
 app.listen(port, () => {
-    console.log('Welcome to Zue Driver monitoring '+ port);
+    console.log('Welcome to CPCGR portal '+ port);
 });
