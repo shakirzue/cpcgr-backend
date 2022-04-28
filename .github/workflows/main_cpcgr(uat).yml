@@ -43,6 +43,6 @@ jobs:
       uses: azure/webapps-deploy@v2
       with:
         app-name: 'CPCGRServer'
-	      slot-name: 'bedpmnt'
+	slot-name: 'bedpmnt'
         publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_C47D9A6579D24F8E8CFD9869F40B9D5A }}
         package: .
