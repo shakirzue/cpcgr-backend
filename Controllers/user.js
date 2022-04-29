@@ -20,6 +20,12 @@ const getAllClient = (req, res, next) => {
         .catch(err => next(err));
 }
 
+// const getAllClient = (req, res, next) => {
+//     userService.getAllClient(req.body.objectId, req.body.clientId)
+//         .then(user => user ? res.json(user) : res.sendStatus(404).json({ success: false, message: "unable to fetch record" }))
+//         .catch(err => next(err));
+// }
+
 const getAllPermissionLevel = (req, res, next) => {
     userService.getAllPermissionLevel(req.body.objectId)
         .then(user => user ? res.json(user) : res.sendStatus(404).json({ success: false, message: "unable to fetch record" }))
@@ -76,7 +82,7 @@ const createClient = (req, res, next) => {
 }
 
 const createUserProfile = (req, res, next) => {
-    userService.CreateUserProfile({ name: req.body.name, objectId: req.body.objectId,tenantId: req.body.tenantId, phone: req.body.phone, clientId: req.body.clientId, isDefaultClient: req.body.isDefaultClient})
+    userService.CreateUserProfile({ name: req.body.name, objectId: req.body.objectId,tenantId: req.body.tenantId, phone: req.body.phone,parentCompany: req.body.parentCompany, clientId: req.body.clientId, isDefaultClient: req.body.isDefaultClient})
         .then(user => user ? res.json(user) : res.sendStatus(404).json({ success: false, message: "unable to save record" }))
         .catch(err => next(err));
 }

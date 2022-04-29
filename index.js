@@ -35,7 +35,7 @@ app.use(bodyParser.json({ type: 'application/*+json', limit: '500mb'}));
 app.use(express.static(path.join(__dirname, "/build")));
 
 app.use(cors({
-    origin: process.env.CLIENT_LOCAL_URL,
+    origin: process.env.CLIENT_PRODUCTION_URL,
     optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
     methods: ['GET', 'POST', 'DELETE', 'UPDATE', 'PUT', 'PATCH']
 }));
