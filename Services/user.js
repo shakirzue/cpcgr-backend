@@ -61,27 +61,6 @@ async function getAllUserRoles() {
     });
 }
 
-async function getAllClient() {
-    return new Promise(function (resolve, reject) {
-        sql.connect(config)
-            .then((conn) => {
-                const request = conn.request();
-                let result = request
-                    .query('select * from dbo.Client_Details')
-                    .then((result) => {
-
-                        if (result.recordset.length > 0) {
-                            resolve(({ success: true, message: "record fetched successfully.", result: result.recordset }));
-                        }
-                        else {
-                            resolve(({ success: false, message: "unable to fetch record" }));
-                        }
-                    })
-                    .then(() => conn.close())
-            })
-    });
-}
-
 async function getAllPermissionLevel() {
     return new Promise(function (resolve, reject) {
         sql.connect(config)
@@ -170,6 +149,49 @@ async function getById(objectId) {
     });
 }
 
+async function getAllClient() {
+    return new Promise(function (resolve, reject) {
+        sql.connect(config)
+            .then((conn) => {
+                const request = conn.request();
+                let result = request
+                    .query('select * from dbo.Client_Details')
+                    .then((result) => {
+
+                        if (result.recordset.length > 0) {
+                            resolve(({ success: true, message: "record fetched successfully.", result: result.recordset }));
+                        }
+                        else {
+                            resolve(({ success: false, message: "unable to fetch record" }));
+                        }
+                    })
+                    .then(() => conn.close())
+            })
+    });
+}
+
+async function getAllClient(objectId, clientId) {
+    return new Promise(function (resolve, reject) {
+        sql.connect(config)
+            .then((conn) => {
+                const request = conn.request();
+                let result = request
+                    .input('objectId', sql.UniqueIdentifier, objectId)
+                    .input('clientId', sql.Int, clientId)
+                    .execute("usp_get_all_clients")
+                    .then((result) => {
+                        if (result.recordset.length > 0) {
+                            resolve(({ success: true, message: "record fetched successfully.", result: result.recordset }));
+                        }
+                        else {
+                            resolve(({ success: false, message: "unable to fetch record" }));
+                        }
+                    })
+                    .then(() => conn.close())
+            })
+    });
+}
+
 async function getDefaultUserClient(objectId) {
 
     return new Promise(function (resolve, reject) {
@@ -251,7 +273,7 @@ async function getPermissionDetailsByUserId(objectId, clientId) {
         sql.connect(config)
             .then((conn) => {
                 const request = conn.request();
-                let query = "SELECT [user].Id, [user].[Name], up.MicroServiceId, up.PermissionLevelId, " +
+                let query = "SELECT [user].Id, [user].[Name],[user].ParentCompany, up.MicroServiceId, up.PermissionLevelId, " +
                     "msd.[Description] as ModuleDiscription, pl.[Description] as PermissionDescription  "+
                     "from dbo.User_Permission up inner join " +
                     "dbo.User_Profile [user] on up.UserProfileId = [user].Id inner join " +
@@ -311,6 +333,7 @@ async function CreateUserProfile(userProfileObject) {
                     .input('ObjectId', sql.UniqueIdentifier, userProfileObject.objectId)
                     .input('tenantId', sql.UniqueIdentifier, userProfileObject.tenantId)
                     .input('Phone', sql.NVarChar, userProfileObject.phone)
+                    .input('ParentCompany', sql.NVarChar, userProfileObject.parentCompany)
                     .input('ClientId', sql.Int, userProfileObject.clientId)
                     .input('IsDefaultClient', sql.Bit, userProfileObject.isDefaultClient)
                     .output('new_id', sql.Int)
